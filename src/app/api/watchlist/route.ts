@@ -5,19 +5,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: { watchlist: true },
-  });
-
-  return NextResponse.json(user?.watchlist ?? []);
+export async function GET() {
+  const watchlist = await prisma.watchlist.findMany();
+  return NextResponse.json(watchlist);
 }
 
 export async function POST(request: Request) {

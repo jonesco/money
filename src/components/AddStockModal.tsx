@@ -4,10 +4,25 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
+interface StockData {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: string;
+  volume: number;
+  latestTradingDay: string;
+  companyName?: string;
+  lowPrice: number;
+  highPrice: number;
+  lowPercentage: number;
+  highPercentage: number;
+  initialPrice: number;
+}
+
 interface AddStockModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (stockData: any) => void;
+  onAdd: (stockData: StockData) => void;
   existingStocks: { symbol: string }[];
 }
 

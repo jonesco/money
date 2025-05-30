@@ -3,32 +3,34 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
+interface StockData {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: string;
+  volume: number;
+  latestTradingDay: string;
+  companyName?: string;
+  lowPrice: number;
+  highPrice: number;
+  lowPercentage: number;
+  highPercentage: number;
+  initialPrice: number;
+}
+
 interface EditStockModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (stockData: any) => void;
-  stock: {
-    symbol: string;
-    price: number;
-    change: number;
-    changePercent: string;
-    volume: number;
-    latestTradingDay: string;
-    companyName?: string;
-    lowPrice: number;
-    highPrice: number;
-    lowPercentage: number;
-    highPercentage: number;
-    initialPrice: number;
-  };
+  onUpdate: (stockData: StockData) => void;
+  stock: StockData;
 }
 
 export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: EditStockModalProps) {
-  const [lowPrice, setLowPrice] = useState<number>(stock.lowPrice);
-  const [highPrice, setHighPrice] = useState<number>(stock.highPrice);
-  const [lowPercentage, setLowPercentage] = useState<number>(stock.lowPercentage);
-  const [highPercentage, setHighPercentage] = useState<number>(stock.highPercentage);
-  const [initialPrice, setInitialPrice] = useState<number>(stock.initialPrice);
+  const [lowPrice, setLowPrice] = useState(stock.lowPrice);
+  const [highPrice, setHighPrice] = useState(stock.highPrice);
+  const [lowPercentage, setLowPercentage] = useState(stock.lowPercentage);
+  const [highPercentage, setHighPercentage] = useState(stock.highPercentage);
+  const [initialPrice, setInitialPrice] = useState(stock.initialPrice);
   const [error, setError] = useState('');
   const [symbol, setSymbol] = useState<string>(stock.symbol);
 

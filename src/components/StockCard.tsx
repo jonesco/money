@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import EditStockModal from './EditStockModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
-import { ArrowDownLeftIcon, ArrowUpRightIcon, ClockIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
+import { ArrowDownLeftIcon, ArrowUpRightIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
 
 interface StockCardProps {
   symbol: string;
