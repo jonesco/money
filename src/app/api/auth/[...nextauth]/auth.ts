@@ -1,11 +1,12 @@
-import { NextAuthOptions } from "next-auth";
+import type { Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -14,7 +15,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, user }: { session: Session; user: any }) => {
       if (session?.user) {
         session.user.id = user.id;
         session.user.email = user.email;
