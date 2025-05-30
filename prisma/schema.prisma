@@ -1,0 +1,29 @@
+// This tells Prisma to use SQLite and where to store the database file
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User table for authentication
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  watchlist Watchlist[]
+}
+
+// Watchlist table for tracking stocks
+model Watchlist {
+  id             String   @id @default(uuid())
+  userId         String
+  stockSymbol    String
+  upperThreshold Float
+  lowerThreshold Float
+  currentPrice   Float
+  lastUpdated    DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+}
