@@ -44,54 +44,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
     }
   }, [isOpen, stock]);
 
-  const handleLowPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setLowPrice(value);
-      const percentage = ((value - initialPrice) / initialPrice) * 100;
-      setLowPercentage(Number(percentage.toFixed(2)));
-    }
-  };
-
-  const handleHighPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setHighPrice(value);
-      const percentage = ((value - initialPrice) / initialPrice) * 100;
-      setHighPercentage(Number(percentage.toFixed(2)));
-    }
-  };
-
-  const handleLowPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setLowPercentage(value);
-      const price = initialPrice * (1 + value / 100);
-      setLowPrice(Number(price.toFixed(2)));
-    }
-  };
-
-  const handleHighPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setHighPercentage(value);
-      const price = initialPrice * (1 + value / 100);
-      setHighPrice(Number(price.toFixed(2)));
-    }
-  };
-
-  const handleInitialPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setInitialPrice(value);
-      // Recalculate percentages based on new initial price
-      const lowPercent = ((lowPrice - value) / value) * 100;
-      const highPercent = ((highPrice - value) / value) * 100;
-      setLowPercentage(Number(lowPercent.toFixed(2)));
-      setHighPercentage(Number(highPercent.toFixed(2)));
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
