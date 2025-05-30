@@ -31,7 +31,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
   const [lowPercentage, setLowPercentage] = useState(stock.lowPercentage);
   const [highPercentage, setHighPercentage] = useState(stock.highPercentage);
   const [initialPrice, setInitialPrice] = useState(stock.initialPrice);
-  const [error, setError] = useState('');
   const [symbol, setSymbol] = useState<string>(stock.symbol);
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       setLowPercentage(stock.lowPercentage);
       setHighPercentage(stock.highPercentage);
       setInitialPrice(stock.initialPrice);
-      setError('');
       setSymbol(stock.symbol);
     }
   }, [isOpen, stock]);
@@ -98,7 +96,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
     e.preventDefault();
     
     if (lowPrice >= highPrice) {
-      setError('Low price must be less than high price');
       return;
     }
 

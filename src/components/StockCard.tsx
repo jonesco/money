@@ -5,7 +5,7 @@ import EditStockModal from './EditStockModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { ArrowDownLeftIcon, ArrowUpRightIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
 
-interface StockCardProps {
+interface StockData {
   symbol: string;
   price: number;
   change: number;
@@ -18,6 +18,9 @@ interface StockCardProps {
   lowPercentage: number;
   highPercentage: number;
   initialPrice: number;
+}
+
+interface StockCardProps extends StockData {
   onUpdate: (stock: StockCardProps) => void;
   onDelete: () => void;
 }
@@ -54,10 +57,12 @@ export default function StockCard({
     return null;
   };
 
-  const handleUpdate = (updatedStock: any) => {
-    if (onUpdate) {
-      onUpdate(updatedStock);
-    }
+  const handleUpdate = (updatedStock: StockData) => {
+    onUpdate({
+      ...updatedStock,
+      onUpdate,
+      onDelete,
+    });
   };
 
   const handleDelete = () => {
@@ -66,11 +71,6 @@ export default function StockCard({
 
   // Calculate slider position (0-100%)
   const sliderPercent = Math.max(0, Math.min(100, ((initialPrice - lowPrice) / (highPrice - lowPrice)) * 100));
-
-  // Determine current price container color
-  let priceContainerBg = 'bg-[#181A20]';
-  if (price < lowPrice) priceContainerBg = 'bg-green-700';
-  else if (price > highPrice) priceContainerBg = 'bg-purple-700';
 
   return (
     <>
@@ -191,27 +191,25 @@ export default function StockCard({
         )}
       </div>
 
-      {onUpdate && (
-        <EditStockModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleUpdate}
-          stock={{
-            symbol,
-            price,
-            change,
-            changePercent,
-            volume,
-            latestTradingDay,
-            companyName,
-            lowPrice,
-            highPrice,
-            lowPercentage,
-            highPercentage,
-            initialPrice,
-          }}
-        />
-      )}
+      <EditStockModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onUpdate={handleUpdate}
+        stock={{
+          symbol,
+          price,
+          change,
+          changePercent,
+          volume,
+          latestTradingDay,
+          companyName,
+          lowPrice,
+          highPrice,
+          lowPercentage,
+          highPercentage,
+          initialPrice,
+        }}
+      />
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}

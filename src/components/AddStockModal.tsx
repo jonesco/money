@@ -97,7 +97,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
       const response = await axios.get(`/api/stocks?symbol=${ticker}`);
       setCurrentPrice(response.data.price);
       setCompanyName(response.data.companyName);
-    } catch (error) {
+    } catch {
       setError('Failed to fetch stock data. Please try again.');
     } finally {
       setIsLoading(false);
