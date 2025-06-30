@@ -14,17 +14,9 @@ CREATE TABLE IF NOT EXISTS watchlist (
   lower_threshold DECIMAL(10,2) NOT NULL,
   current_price DECIMAL(10,2) NOT NULL DEFAULT 0,
   initial_price DECIMAL(10,2) NOT NULL DEFAULT 0,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
--- Add missing columns if they don't exist
-DO $$ 
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'watchlist' AND column_name = 'last_updated') THEN
-    ALTER TABLE watchlist ADD COLUMN last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW();
-  END IF;
-END $$;
 
 -- Create indexes if they don't exist
 CREATE INDEX IF NOT EXISTS idx_watchlist_user_id ON watchlist(user_id);
