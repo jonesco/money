@@ -14,7 +14,7 @@ export default function Navbar() {
   if (loading) {
     return (
       <nav className="navbar-fixed bg-white p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-        <div className="flex justify-between items-center w-full" style={{ paddingTop: '8px' }}>
+        <div className="flex justify-between items-center w-full" style={{ paddingTop: '16px' }}>
           <Link href="/" className="text-2xl font-bold">
             <span style={{ color: '#16a34a' }}>Buy<span style={{ fontSize: '1.2em' }}>↓</span></span>
             <span style={{ color: '#9333ea' }}>Sell<span style={{ fontSize: '1.2em' }}>↑</span></span>
@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <nav className="navbar-fixed bg-white p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-      <div className="flex justify-between items-center w-full" style={{ paddingTop: '8px' }}>
+      <div className="flex justify-between items-center w-full" style={{ paddingTop: '16px' }}>
         <Link href="/" className="text-2xl font-bold">
           <span style={{ color: '#16a34a' }}>Buy<span style={{ fontSize: '1.2em' }}>↓</span></span>
           <span style={{ color: '#9333ea' }}>Sell<span style={{ fontSize: '1.2em' }}>↑</span></span>
