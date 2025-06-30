@@ -13,27 +13,25 @@ export default function Navbar() {
 
   if (loading) {
     return (
-      <nav className="navbar-fixed bg-white border-b border-gray-200 p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-        <div className="flex justify-between items-center">
+      <nav className="navbar-fixed bg-white p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+        <div className="flex justify-between items-center w-full" style={{ paddingTop: '8px' }}>
           <Link href="/" className="text-2xl font-bold">
-            <span style={{ color: '#16a34a' }}>Buy↓</span>
-            <span style={{ color: '#6b21a8' }}>Sell↑</span>
-            <span className="text-gray-900">Hold</span>
+            <span style={{ color: '#16a34a' }}>Buy<span style={{ fontSize: '1.2em' }}>↓</span></span>
+            <span style={{ color: '#9333ea' }}>Sell<span style={{ fontSize: '1.2em' }}>↑</span></span>
+            <span style={{ color: '#1e293b' }}>Hold</span>
           </Link>
-          <div className="text-gray-500">Loading...</div>
         </div>
       </nav>
     );
   }
 
   return (
-    <nav className="navbar-fixed bg-white border-b border-gray-200 p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-      <div className="flex justify-between items-center">
-        <Link
-          href="/" className="text-2xl font-bold">
-          <span style={{ color: '#16a34a' }}>Buy↓</span>
-          <span style={{ color: '#6b21a8' }}>Sell↑</span>
-          <span className="text-gray-900">Hold</span>
+    <nav className="navbar-fixed bg-white p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+      <div className="flex justify-between items-center w-full" style={{ paddingTop: '8px' }}>
+        <Link href="/" className="text-2xl font-bold">
+          <span style={{ color: '#16a34a' }}>Buy<span style={{ fontSize: '1.2em' }}>↓</span></span>
+          <span style={{ color: '#9333ea' }}>Sell<span style={{ fontSize: '1.2em' }}>↑</span></span>
+          <span style={{ color: '#1e293b' }}>Hold</span>
         </Link>
         <div className="flex items-center space-x-4">
           {user ? (
