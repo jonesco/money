@@ -201,11 +201,16 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Remove stock from watchlist
 export async function DELETE(request: NextRequest) {
+  console.log('DELETE: Delete request received');
   const auth = await getUserFromAuthHeader(request);
   if (!auth?.user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   const supabase = createSupabaseClientWithAuth(auth.token);
-  const body = await request.json();
-  const { id } = body;
+  
+  // Get ID from query parameters
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  console.log('DELETE: Stock ID from query params:', id);
+  
   if (!id) {
     return NextResponse.json({ error: 'Stock ID is required' }, { status: 400 });
   }
