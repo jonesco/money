@@ -115,23 +115,23 @@ export default function StockCard({
         <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {/* Ticker and current price */}
-            <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
               {/* Ticker and link */}
-              <div className="flex flex-col items-start min-w-[120px]">
+              <div className="flex flex-col items-start min-w-[80px] sm:min-w-[120px]">
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-900 text-3xl font-semibold">{symbol}</span>
+                  <span className="text-gray-900 text-xl sm:text-2xl md:text-3xl font-semibold">{symbol}</span>
                   <a href={`https://finance.yahoo.com/quote/${symbol}`} target="_blank" rel="noopener noreferrer" 
                      onMouseEnter={(e) => e.currentTarget.style.color = '#6b21a8'}
                      onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
                      className="hover:text-purple-600">
-                    <ArrowTopRightOnSquareIcon className="w-4 h-4 text-gray-600" />
+                    <ArrowTopRightOnSquareIcon className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                   </a>
                 </div>
               </div>
 
               {/* Current price and change - positioned closer to ticker on all screen sizes */}
-              <div className="flex flex-col items-start min-w-[140px]">
-                <span className="text-gray-900 text-xl font-semibold tabular-nums">${price.toFixed(2)}</span>
+              <div className="flex flex-col items-start min-w-[100px] sm:min-w-[140px]">
+                <span className="text-gray-900 text-lg sm:text-xl font-semibold tabular-nums">${price.toFixed(2)}</span>
                 <div className="flex items-center gap-1">
                   {getChangeIcon()}
                   <span className="text-sm font-medium tabular-nums" style={getPriceColor()}>
