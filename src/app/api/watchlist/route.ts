@@ -38,8 +38,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('watchlist')
       .select('*')
-      .eq('user_id', auth.user.id)
-      .order('stock_symbol', { ascending: true });
+      .eq('user_id', auth.user.id);
     
     console.log('GET: Supabase query completed');
     
