@@ -3,6 +3,7 @@ import { Work_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const workSans = Work_Sans({ subsets: ["latin"] });
 
@@ -51,9 +52,11 @@ export default function RootLayout({
       <body className={workSans.className}>
         <Providers>
           <Navbar />
-          <main>
-            {children}
-          </main>
+          <PullToRefresh>
+            <main>
+              {children}
+            </main>
+          </PullToRefresh>
         </Providers>
       </body>
     </html>
