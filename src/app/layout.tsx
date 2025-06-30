@@ -9,6 +9,20 @@ const workSans = Work_Sans({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Buy↓Sell↑Hold",
   description: "Track your favorite stocks in real-time",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'Buy↓Sell↑Hold',
+    'mobile-web-app-capable': 'yes',
+    'theme-color': '#ffffff',
+  },
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -36,7 +50,9 @@ export default function RootLayout({
       <body className={workSans.className}>
         <Providers>
           <Navbar />
-          {children}
+          <main>
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
