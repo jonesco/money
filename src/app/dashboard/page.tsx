@@ -374,7 +374,7 @@ export default function DashboardPage() {
               type="submit" 
               className="bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium"
             >
-              <span className="hidden sm:inline">Add Stock</span>
+              <span className="sm:inline hidden">Add Stock</span>
               <span className="sm:hidden text-xl font-bold">+</span>
             </button>
           </div>
