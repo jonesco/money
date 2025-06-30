@@ -2,9 +2,25 @@
 
 import { useEffect, useState } from 'react';
 
+interface EnvInfo {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+  serviceRoleKey: string;
+}
+
+interface DbTest {
+  message?: string;
+  sql?: string;
+  error?: string;
+}
+
 export default function DebugPage() {
-  const [envInfo, setEnvInfo] = useState<any>({});
-  const [dbTest, setDbTest] = useState<any>({});
+  const [envInfo, setEnvInfo] = useState<EnvInfo>({
+    supabaseUrl: 'Checking...',
+    supabaseAnonKey: 'Checking...',
+    serviceRoleKey: 'Checking...',
+  });
+  const [dbTest, setDbTest] = useState<DbTest>({});
 
   useEffect(() => {
     // Check environment variables
