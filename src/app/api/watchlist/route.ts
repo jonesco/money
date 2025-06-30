@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       .from('watchlist')
       .select('*')
       .eq('user_id', auth.user.id)
-      .order('last_updated', { ascending: false });
+      .order('stock_symbol', { ascending: true });
     
     console.log('GET: Supabase query completed');
     
