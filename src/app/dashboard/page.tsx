@@ -343,14 +343,17 @@ export default function DashboardPage() {
 
         <form onSubmit={handleAddStock} className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Stock</h2>
+          {/* Hidden inputs to trick password managers */}
+          <input type="text" style={{ display: 'none' }} autoComplete="username" />
+          <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
-              type="search"
+              type="text"
               value={stockSymbol}
               onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
               placeholder="Stock Symbol (e.g., AAPL)"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="off"
+              autoComplete="chrome-off"
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck="false"
@@ -359,21 +362,33 @@ export default function DashboardPage() {
               data-1p-ignore="true"
               data-autocomplete="off"
               data-cy="stock-symbol-input"
+              name="stock-symbol-search"
+              id="stock-symbol-search"
               style={{
                 WebkitTextFillColor: 'rgb(17, 24, 39)',
                 WebkitBoxShadow: '0 0 0 1000px white inset',
-                WebkitAppearance: 'none'
+                WebkitAppearance: 'none',
+                backgroundColor: 'white !important'
               }}
               onFocus={(e) => {
                 // Clear any autofilled value on focus
-                if (e.target.value && e.target.value !== stockSymbol) {
+                setTimeout(() => {
+                  if (e.target.value && e.target.value !== stockSymbol) {
+                    e.target.value = stockSymbol;
+                  }
+                }, 0);
+              }}
+              onBlur={(e) => {
+                // Ensure the value is correct after blur
+                if (e.target.value !== stockSymbol) {
                   e.target.value = stockSymbol;
                 }
               }}
               onInput={(e) => {
                 // Prevent autofill by clearing if it doesn't match our state
-                if (e.currentTarget.value !== stockSymbol) {
-                  setStockSymbol(e.currentTarget.value.toUpperCase());
+                const newValue = e.currentTarget.value.toUpperCase();
+                if (newValue !== stockSymbol) {
+                  setStockSymbol(newValue);
                 }
               }}
               required
