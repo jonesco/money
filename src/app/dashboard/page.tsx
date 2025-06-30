@@ -343,12 +343,9 @@ export default function DashboardPage() {
 
         <form onSubmit={handleAddStock} className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Stock</h2>
-          {/* Hidden input to trick password managers */}
-          <input type="text" style={{ display: 'none' }} autoComplete="username" />
-          <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
-              type="text"
+              type="search"
               value={stockSymbol}
               onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
               placeholder="Stock Symbol (e.g., AAPL)"
@@ -362,6 +359,23 @@ export default function DashboardPage() {
               data-1p-ignore="true"
               data-autocomplete="off"
               data-cy="stock-symbol-input"
+              style={{
+                WebkitTextFillColor: 'rgb(17, 24, 39)',
+                WebkitBoxShadow: '0 0 0 1000px white inset',
+                WebkitAppearance: 'none'
+              }}
+              onFocus={(e) => {
+                // Clear any autofilled value on focus
+                if (e.target.value && e.target.value !== stockSymbol) {
+                  e.target.value = stockSymbol;
+                }
+              }}
+              onInput={(e) => {
+                // Prevent autofill by clearing if it doesn't match our state
+                if (e.currentTarget.value !== stockSymbol) {
+                  setStockSymbol(e.currentTarget.value.toUpperCase());
+                }
+              }}
               required
             />
             <input
