@@ -343,6 +343,9 @@ export default function DashboardPage() {
 
         <form onSubmit={handleAddStock} className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Stock</h2>
+          {/* Hidden input to trick password managers */}
+          <input type="text" style={{ display: 'none' }} autoComplete="username" />
+          <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
               type="text"
@@ -350,13 +353,15 @@ export default function DashboardPage() {
               onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
               placeholder="Stock Symbol (e.g., AAPL)"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="new-password"
+              autoComplete="off"
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck="false"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"
+              data-autocomplete="off"
+              data-cy="stock-symbol-input"
               required
             />
             <input
@@ -366,10 +371,11 @@ export default function DashboardPage() {
               placeholder="Upper Threshold"
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="new-password"
+              autoComplete="off"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"
+              data-autocomplete="off"
               required
             />
             <input
@@ -379,10 +385,11 @@ export default function DashboardPage() {
               placeholder="Lower Threshold"
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="new-password"
+              autoComplete="off"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"
+              data-autocomplete="off"
               required
             />
             <button 
