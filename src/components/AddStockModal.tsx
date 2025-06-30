@@ -169,8 +169,8 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
       companyName,
       lowPrice,
       highPrice,
-      lowPercentage,
-      highPercentage,
+      lowPercentage: lowPercentage || 0,
+      highPercentage: highPercentage || 0,
       initialPrice: currentPrice,
     });
 

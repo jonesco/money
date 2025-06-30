@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface StockData {
+  id?: string;
   symbol: string;
   price: number;
   change: number;
@@ -53,6 +54,7 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
 
     onUpdate({
       ...stock,
+      id: stock.id,
       lowPrice,
       highPrice,
       lowPercentage,

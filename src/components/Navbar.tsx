@@ -1,53 +1,58 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const { data: session } = useSession();
+  const { user, signOut, loading } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  if (loading) {
+    return (
+      <nav className="bg-white border-b border-gray-200 p-4 shadow-sm">
+        <div className="flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold">
+            <span style={{ color: '#16a34a' }}>Buy↓</span>
+            <span style={{ color: '#6b21a8' }}>Sell↑</span>
+            <span className="text-gray-900">Hold</span>
+          </Link>
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
-    <nav className="bg-black border-b border-purple-900 px-4 py-3 flex items-center justify-between">
-      <Link href="/" className="text-2xl font-bold text-purple-400 tracking-wider">
-        JONE$CO
-      </Link>
-      <div className="flex gap-4 items-center">
+    <nav className="bg-white border-b border-gray-200 p-4 shadow-sm">
+      <div className="flex justify-between items-center">
         <Link
-          href="/dashboard"
-          className={`hover:text-purple-300 ${pathname === '/dashboard' ? 'text-purple-400 font-bold' : 'text-white'}`}
-          title="Dashboard"
-        >
-          Dashboard
+          href="/" className="text-2xl font-bold">
+          <span style={{ color: '#16a34a' }}>Buy↓</span>
+          <span style={{ color: '#6b21a8' }}>Sell↑</span>
+          <span className="text-gray-900">Hold</span>
         </Link>
-        {!session && (
-          <>
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <button
+              onClick={handleSignOut}
+              className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
+              title="Sign Out"
+            >
+              <ArrowRightOnRectangleIcon className="h-6 w-6" />
+            </button>
+          ) : (
             <Link
               href="/login"
-              className={`hover:text-purple-300 ${pathname === '/login' ? 'text-purple-400 font-bold' : 'text-white'}`}
-              title="Login"
+              className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded transition-colors duration-200"
             >
-              Login
+              Sign In
             </Link>
-            <Link
-              href="/register"
-              className={`hover:text-purple-300 ${pathname === '/register' ? 'text-purple-400 font-bold' : 'text-white'}`}
-              title="Register"
-            >
-              Register
-            </Link>
-          </>
-        )}
-        {session && (
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="text-white hover:text-purple-300"
-            title="Logout"
-          >
-            Logout
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </nav>
   );
