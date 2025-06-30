@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
@@ -36,6 +36,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const [highPercentage, setHighPercentage] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const symbolInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
     setTicker('');
@@ -59,6 +60,27 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
       resetState();
     }
   }, [isOpen]);
+
+  // Clear any autofilled values when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        if (symbolInputRef.current) {
+          // Temporarily change type to prevent autofill
+          symbolInputRef.current.type = 'password';
+          setTimeout(() => {
+            if (symbolInputRef.current) {
+              symbolInputRef.current.type = 'text';
+              symbolInputRef.current.value = ticker;
+            }
+          }, 10);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, ticker]);
 
   useEffect(() => {
     if (currentPrice) {
@@ -199,15 +221,46 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               Stock Symbol
             </label>
             <div className="flex gap-2">
+              {/* Hidden inputs to trick password managers */}
+              <input type="text" style={{ display: 'none' }} autoComplete="username" />
+              <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
+              
               <input
+                ref={symbolInputRef}
                 type="text"
                 id="symbol"
+                name="stock-symbol"
+                data-form-type="other"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
                 value={ticker}
                 onChange={handleTickerChange}
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     handleGetPrice();
+                  }
+                }}
+                onFocus={(e) => {
+                  // Clear any autofilled value immediately
+                  if (e.target.value && e.target.value !== ticker) {
+                    e.target.value = ticker;
+                  }
+                }}
+                onBlur={(e) => {
+                  // Clear any autofilled value on blur
+                  if (e.target.value && e.target.value !== ticker) {
+                    e.target.value = ticker;
+                  }
+                }}
+                onInput={(e) => {
+                  // Additional check on input event
+                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
+                    e.currentTarget.value = ticker;
                   }
                 }}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
