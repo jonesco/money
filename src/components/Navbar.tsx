@@ -13,7 +13,7 @@ export default function Navbar() {
 
   if (loading) {
     return (
-      <nav className="navbar-fixed bg-white border-b border-gray-200 p-4 shadow-sm">
+      <nav className="navbar-fixed bg-white border-b border-gray-200 p-4 shadow-sm" style={{ backgroundColor: '#ffffff' }}>
         <div className="flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold">
             <span style={{ color: '#16a34a' }}>Buy↓</span>
@@ -27,7 +27,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar-fixed bg-white border-b border-gray-200 p-4 shadow-sm">
+    <nav className="navbar-fixed bg-white border-b border-gray-200 p-4 shadow-sm" style={{ backgroundColor: '#ffffff' }}>
       <div className="flex justify-between items-center">
         <Link
           href="/" className="text-2xl font-bold">

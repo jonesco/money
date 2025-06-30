@@ -41,7 +41,7 @@ body {
   right: 0;
   z-index: 50;
   padding-top: max(0px, env(safe-area-inset-top));
-  background: var(--background);
+  background: #ffffff;
 }
 
 /* Add padding to main content to account for fixed header */
