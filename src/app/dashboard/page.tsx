@@ -350,10 +350,13 @@ export default function DashboardPage() {
               onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
               placeholder="Stock Symbol (e.g., AAPL)"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="off"
+              autoComplete="new-password"
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck="false"
+              data-form-type="other"
+              data-lpignore="true"
+              data-1p-ignore="true"
               required
             />
             <input
@@ -363,7 +366,10 @@ export default function DashboardPage() {
               placeholder="Upper Threshold"
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="off"
+              autoComplete="new-password"
+              data-form-type="other"
+              data-lpignore="true"
+              data-1p-ignore="true"
               required
             />
             <input
@@ -373,7 +379,10 @@ export default function DashboardPage() {
               placeholder="Lower Threshold"
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="off"
+              autoComplete="new-password"
+              data-form-type="other"
+              data-lpignore="true"
+              data-1p-ignore="true"
               required
             />
             <button 
