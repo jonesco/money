@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [setupMessage, setSetupMessage] = useState('');
+  const [setupSQL, setSetupSQL] = useState('');
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function DashboardPage() {
           window.location.reload();
         } else {
           setSetupMessage(data.message + '\n\n' + data.sql);
+          setSetupSQL(data.sql);
         }
       } else {
         setSetupMessage('Setup error: ' + data.error);
@@ -292,23 +294,52 @@ export default function DashboardPage() {
         </div>
 
         {/* Database Setup Section */}
-        {error && error.includes('Database table not set up') && (
+        {setupMessage && (
           <div className="mb-4 p-4 bg-blue-100 border border-blue-300 rounded">
-            <h3 className="font-bold text-blue-800 mb-2">Database Setup Required</h3>
-            <p className="text-blue-700 mb-3">Your database table needs to be set up. Click the button below to check and set up the database.</p>
+            <h3 className="font-semibold text-blue-800">Database Setup Required</h3>
+            <p className="text-blue-700 mb-2">{setupMessage}</p>
+            {setupSQL && (
+              <div className="bg-gray-100 p-3 rounded text-sm font-mono overflow-x-auto">
+                <pre className="whitespace-pre-wrap">{setupSQL}</pre>
+              </div>
+            )}
             <button
               onClick={handleSetupDatabase}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Setup Database
             </button>
-            {setupMessage && (
-              <div className="mt-3 p-3 bg-white border border-blue-200 rounded">
-                <pre className="text-sm text-gray-800 whitespace-pre-wrap">{setupMessage}</pre>
-              </div>
-            )}
           </div>
         )}
+
+        {/* Production Database Check */}
+        <div className="mb-4 p-4 bg-orange-100 border border-orange-300 rounded">
+          <h3 className="font-semibold text-orange-800">Production Database Check</h3>
+          <p className="text-orange-700 mb-2">Check if your production database has the correct schema</p>
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/setup-db', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+                const result = await response.json();
+                if (result.success) {
+                  alert('✅ Production database is properly configured!');
+                } else {
+                  alert(`❌ Production database needs setup:\n\n${result.message}\n\n${result.sql || ''}`);
+                }
+              } catch (error) {
+                alert(`Error checking production database: ${error}`);
+              }
+            }}
+            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+          >
+            Check Production Database
+          </button>
+        </div>
 
         <form onSubmit={handleAddStock} className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Stock</h2>
