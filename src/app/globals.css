@@ -23,6 +23,23 @@ html, body {
   /* iOS web app specific styles */
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  /* Prevent password autofill prompts */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable text selection for input fields */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 /* iOS web app status bar handling */
@@ -49,4 +66,9 @@ html, body {
 /* Add padding to main content to account for fixed header */
 main {
   padding-top: calc(4rem + max(0px, env(safe-area-inset-top)));
+}
+
+/* Allow pull-to-refresh but prevent password autofill */
+main {
+  -webkit-overflow-scrolling: touch;
 }

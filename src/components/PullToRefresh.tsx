@@ -47,12 +47,30 @@ export default function PullToRefresh({
         if (pullDistance >= threshold) {
           // Trigger refresh
           setIsRefreshing(true);
+          
+          // Temporarily hide all form inputs to prevent password autofill
+          const inputs = document.querySelectorAll('input, textarea');
+          const originalStyles: string[] = [];
+          
+          inputs.forEach((input, index) => {
+            originalStyles[index] = (input as HTMLElement).style.display;
+            (input as HTMLElement).style.display = 'none';
+          });
+          
+          // Execute refresh
           if (onRefresh) {
             onRefresh();
           } else {
             // Default behavior: reload the page
             window.location.reload();
           }
+          
+          // Restore input visibility after a short delay
+          setTimeout(() => {
+            inputs.forEach((input, index) => {
+              (input as HTMLElement).style.display = originalStyles[index] || '';
+            });
+          }, 100);
         }
       }
       

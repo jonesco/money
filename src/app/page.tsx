@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import StockCard from '@/components/StockCard';
 import AddStockModal from '@/components/AddStockModal';
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/outline';
 import { supabase } from '@/lib/supabase';
 
 interface StockData {
@@ -39,8 +39,6 @@ export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [symbol, setSymbol] = useState('');
-  const [searchSymbol, setSearchSymbol] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Redirect to login if not authenticated
@@ -65,11 +63,8 @@ export default function Home() {
     enabled: !!user?.id,
   });
 
-  // Filter watchlist based on search
-  const filteredWatchlist = watchlist.filter((item: WatchlistItem) => {
-    if (!searchSymbol) return true;
-    return item.stock_symbol.toLowerCase().includes(searchSymbol.toLowerCase());
-  });
+  // Use watchlist directly without filtering
+  const filteredWatchlist = watchlist;
 
   // Add stock to watchlist mutation
   const addStockMutation = useMutation({
@@ -209,30 +204,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+        {/* Header with Add Stock */}
+        <div className="flex justify-between items-center mb-8 mt-2">
           <p className="text-gray-600 text-lg">Welcome back, {user.email?.split('@')[0]}!</p>
-        </div>
-
-        {/* Search and Add Stock */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex-1">
-            <div className="relative">
-              <input
-                type="text"
-                value={symbol}
-                onChange={(e) => {
-                  setSymbol(e.target.value);
-                  setSearchSymbol(e.target.value);
-                }}
-                placeholder="Filter your watchlist..."
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
-                <MagnifyingGlassIcon className="w-5 h-5" />
-              </div>
-            </div>
-          </div>
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
@@ -259,9 +233,9 @@ export default function Home() {
               onDelete={() => handleDeleteStock(item.id)}
             />
           ))}
-          {searchSymbol && filteredWatchlist.length === 0 && (
+          {filteredWatchlist.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-600">No stocks found matching &quot;{searchSymbol}&quot;</p>
+              <p className="text-gray-600">No stocks in your watchlist yet. Add your first stock to get started!</p>
             </div>
           )}
         </div>

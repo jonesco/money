@@ -61,66 +61,21 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   }, [isOpen]);
 
-  // Clear any autofilled values when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => {
-        if (symbolInputRef.current) {
-          // Temporarily change type to prevent autofill
-          symbolInputRef.current.type = 'password';
-          setTimeout(() => {
-            if (symbolInputRef.current) {
-              symbolInputRef.current.type = 'text';
-              symbolInputRef.current.value = ticker;
-            }
-          }, 10);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, ticker]);
-
-  // Mobile-specific autofill prevention
+  // Simple autofill prevention - just clear on focus
   useEffect(() => {
     if (isOpen && symbolInputRef.current) {
-      // Continuous monitoring for mobile autofill
-      const interval = setInterval(() => {
-        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
-          symbolInputRef.current.value = ticker;
-        }
-      }, 100);
-
-      // Also monitor for visibility changes (pull-to-refresh)
-      const handleVisibilityChange = () => {
-        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
-          symbolInputRef.current.value = ticker;
-        }
+      const handleFocus = () => {
+        // Small delay to let autofill happen, then clear
+        setTimeout(() => {
+          if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
+            symbolInputRef.current.value = ticker;
+          }
+        }, 100);
       };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
-      // Safari-specific: Use MutationObserver to watch for autofill
-      const observer = new MutationObserver(() => {
-        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
-          symbolInputRef.current.value = ticker;
-        }
-      });
-
-      if (symbolInputRef.current) {
-        observer.observe(symbolInputRef.current, {
-          attributes: true,
-          attributeFilter: ['style', 'value'],
-          childList: false,
-          subtree: false
-        });
-      }
-      
+      symbolInputRef.current.addEventListener('focus', handleFocus);
       return () => {
-        clearInterval(interval);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        observer.disconnect();
+        symbolInputRef.current?.removeEventListener('focus', handleFocus);
       };
     }
   }, [isOpen, ticker]);
@@ -268,31 +223,15 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               <input type="text" style={{ display: 'none' }} autoComplete="username" />
               <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
               
-              {/* Mobile-specific hidden inputs */}
-              <input type="email" style={{ display: 'none' }} autoComplete="email" />
-              <input type="tel" style={{ display: 'none' }} autoComplete="tel" />
-              
-              {/* Safari-specific hidden inputs */}
-              <input type="text" style={{ display: 'none' }} name="username" autoComplete="username" />
-              <input type="password" style={{ display: 'none' }} name="password" autoComplete="current-password" />
-              <input type="email" style={{ display: 'none' }} name="email" autoComplete="email" />
-              
               <input
                 ref={symbolInputRef}
                 type="text"
                 id="symbol"
                 name="stock-symbol"
-                data-form-type="other"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-kwignore="true"
-                data-bwignore="true"
                 autoComplete="off"
                 autoCorrect="off"
-                autoCapitalize="off"
+                autoCapitalize="characters"
                 spellCheck="false"
-                inputMode="text"
-                enterKeyHint="search"
                 value={ticker}
                 onChange={handleTickerChange}
                 onKeyDown={e => {
@@ -301,59 +240,8 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                     handleGetPrice();
                   }
                 }}
-                onFocus={(e) => {
-                  // Clear any autofilled value immediately
-                  if (e.target.value && e.target.value !== ticker) {
-                    e.target.value = ticker;
-                  }
-                  // Force focus to clear any mobile autofill
-                  setTimeout(() => {
-                    if (e.target.value && e.target.value !== ticker) {
-                      e.target.value = ticker;
-                    }
-                  }, 0);
-                }}
-                onBlur={(e) => {
-                  // Clear any autofilled value on blur
-                  if (e.target.value && e.target.value !== ticker) {
-                    e.target.value = ticker;
-                  }
-                }}
-                onInput={(e) => {
-                  // Additional check on input event
-                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
-                    e.currentTarget.value = ticker;
-                  }
-                }}
-                onCompositionStart={(e) => {
-                  // Prevent composition events from interfering
-                  e.preventDefault();
-                }}
-                onCompositionEnd={(e) => {
-                  // Clear any composition text
-                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
-                    e.currentTarget.value = ticker;
-                  }
-                }}
-                onBeforeInput={(e) => {
-                  // Prevent any input that doesn't match our expected value
-                  if (e.data && e.data !== ticker) {
-                    e.preventDefault();
-                  }
-                }}
-                onAnimationStart={(e) => {
-                  // Safari-specific event to catch autofill
-                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
-                    e.currentTarget.value = ticker;
-                  }
-                }}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="Enter stock symbol (e.g., AAPL)"
-                style={{
-                  WebkitAppearance: 'none',
-                  WebkitBorderRadius: '0.5rem',
-                  WebkitBoxShadow: 'none'
-                }}
                 required
               />
               <button
@@ -381,16 +269,16 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               </div>
 
               <div>
-                <label htmlFor="initialPrice" className="block text-sm font-medium text-gray-300 mb-1">
-                  Initial Price
+                <label htmlFor="targetPrice" className="block text-sm font-medium text-gray-300 mb-1">
+                  Target Price
                 </label>
                 <input
                   type="number"
-                  id="initialPrice"
+                  id="targetPrice"
                   value={currentPrice}
                   readOnly
                   className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-                  placeholder="Enter initial price"
+                  placeholder="Enter target price"
                   step="0.01"
                   required
                 />

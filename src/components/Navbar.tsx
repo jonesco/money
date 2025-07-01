@@ -2,13 +2,17 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const { user, signOut, loading } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleRefresh = () => {
+    window.location.reload();
   };
 
   if (loading) {
@@ -35,13 +39,22 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center space-x-4">
           {user ? (
-            <button
-              onClick={handleSignOut}
-              className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
-              title="Sign Out"
-            >
-              <ArrowRightOnRectangleIcon className="h-6 w-6" />
-            </button>
+            <>
+              <button
+                onClick={handleRefresh}
+                className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
+                title="Refresh"
+              >
+                <ArrowPathIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
+                title="Sign Out"
+              >
+                <ArrowRightOnRectangleIcon className="h-6 w-6" />
+              </button>
+            </>
           ) : (
             <Link
               href="/login"

@@ -3,7 +3,7 @@ import { Work_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
-import PullToRefresh from "@/components/PullToRefresh";
+import ClientLayout from "@/components/ClientLayout";
 
 const workSans = Work_Sans({ subsets: ["latin"] });
 
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-title': 'Buy↓Sell↑Hold',
     'mobile-web-app-capable': 'yes',
     'theme-color': '#ffffff',
+    'format-detection': 'telephone=no',
   },
   icons: {
     icon: [
@@ -49,14 +50,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body className={workSans.className}>
         <Providers>
           <Navbar />
-          <PullToRefresh>
+          <ClientLayout>
             <main>
               {children}
             </main>
-          </PullToRefresh>
+          </ClientLayout>
         </Providers>
       </body>
     </html>

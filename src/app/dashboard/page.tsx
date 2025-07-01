@@ -353,44 +353,10 @@ export default function DashboardPage() {
               onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
               placeholder="Stock Symbol (e.g., AAPL)"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
-              autoComplete="chrome-off"
+              autoComplete="off"
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck="false"
-              data-form-type="other"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-autocomplete="off"
-              data-cy="stock-symbol-input"
-              name="stock-symbol-search"
-              id="stock-symbol-search"
-              style={{
-                WebkitTextFillColor: 'rgb(17, 24, 39)',
-                WebkitBoxShadow: '0 0 0 1000px white inset',
-                WebkitAppearance: 'none',
-                backgroundColor: 'white !important'
-              }}
-              onFocus={(e) => {
-                // Clear any autofilled value on focus
-                setTimeout(() => {
-                  if (e.target.value && e.target.value !== stockSymbol) {
-                    e.target.value = stockSymbol;
-                  }
-                }, 0);
-              }}
-              onBlur={(e) => {
-                // Ensure the value is correct after blur
-                if (e.target.value !== stockSymbol) {
-                  e.target.value = stockSymbol;
-                }
-              }}
-              onInput={(e) => {
-                // Prevent autofill by clearing if it doesn't match our state
-                const newValue = e.currentTarget.value.toUpperCase();
-                if (newValue !== stockSymbol) {
-                  setStockSymbol(newValue);
-                }
-              }}
               required
             />
             <input
@@ -401,10 +367,6 @@ export default function DashboardPage() {
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
               autoComplete="off"
-              data-form-type="other"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-autocomplete="off"
               required
             />
             <input
@@ -415,10 +377,6 @@ export default function DashboardPage() {
               step="0.01"
               className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900 placeholder-gray-500"
               autoComplete="off"
-              data-form-type="other"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-autocomplete="off"
               required
             />
             <button 

@@ -94,24 +94,23 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
               type="text"
               id="symbol"
               value={symbol}
-              onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-              className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-              placeholder="Enter stock symbol (e.g., AAPL)"
-              required
+              readOnly
+              className="w-full px-4 py-2 bg-[#2A2D36] border border-gray-600 rounded-lg text-gray-300 cursor-not-allowed"
+              placeholder="Stock symbol"
             />
           </div>
 
           <div>
-            <label htmlFor="initialPrice" className="block text-sm font-medium text-gray-300 mb-1">
-              Initial Price
+            <label htmlFor="targetPrice" className="block text-sm font-medium text-gray-300 mb-1">
+              Target Price
             </label>
             <input
               type="number"
-              id="initialPrice"
+              id="targetPrice"
               value={initialPrice}
               onChange={(e) => setInitialPrice(Number(e.target.value))}
               className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-              placeholder="Enter initial price"
+              placeholder="Enter target price"
               step="0.01"
               required
             />
