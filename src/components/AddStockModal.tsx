@@ -36,6 +36,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const [highPercentage, setHighPercentage] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [modalStyle, setModalStyle] = useState({});
   const symbolInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -61,15 +62,34 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   }, [isOpen]);
 
-  // Focus management - prevent modal shifting
+  // Calculate modal position and focus management
   useEffect(() => {
-    if (isOpen && symbolInputRef.current) {
-      // Focus the input after a short delay to prevent layout shifts
-      const timer = setTimeout(() => {
-        symbolInputRef.current?.focus();
-      }, 50);
+    if (isOpen) {
+      // Calculate center position based on window size
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const maxHeight = Math.min(window.innerHeight - 32, 600);
+      const maxWidth = Math.min(window.innerWidth - 32, 448);
       
-      return () => clearTimeout(timer);
+      setModalStyle({
+        position: 'fixed',
+        top: `${centerY}px`,
+        left: `${centerX}px`,
+        transform: 'translate(-50%, -50%)',
+        maxHeight: `${maxHeight}px`,
+        minHeight: 'min-content',
+        width: `${maxWidth}px`,
+        maxWidth: '28rem'
+      });
+
+      // Focus the input after a short delay
+      if (symbolInputRef.current) {
+        const timer = setTimeout(() => {
+          symbolInputRef.current?.focus();
+        }, 50);
+        
+        return () => clearTimeout(timer);
+      }
     }
   }, [isOpen]);
 
@@ -206,16 +226,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="fixed bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md overflow-y-auto z-10" style={{ 
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        maxHeight: 'calc(100vh - 2rem)',
-        minHeight: 'min-content',
-        width: 'calc(100vw - 2rem)',
-        maxWidth: '28rem'
-      }}>
+      <div className="fixed bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto z-10" style={modalStyle}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Add Stock</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
