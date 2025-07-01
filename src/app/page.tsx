@@ -48,16 +48,18 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
-  // Check for URL parameter to open modal
+  // Listen for custom event to open modal
   useEffect(() => {
     if (user && !authLoading) {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('openModal') === 'true') {
+      const handleOpenModal = () => {
         setIsModalOpen(true);
-        // Clean up the URL
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, '', newUrl);
-      }
+      };
+
+      window.addEventListener('openAddStockModal', handleOpenModal);
+      
+      return () => {
+        window.removeEventListener('openAddStockModal', handleOpenModal);
+      };
     }
   }, [user, authLoading]);
 

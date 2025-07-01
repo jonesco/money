@@ -16,8 +16,8 @@ export default function Navbar() {
   };
 
   const handleAddStock = () => {
-    // Navigate to dashboard with query parameter to open the modal
-    window.location.href = '/?openModal=true';
+    // Dispatch a custom event to open the modal without refreshing
+    window.dispatchEvent(new CustomEvent('openAddStockModal'));
   };
 
   if (loading) {
