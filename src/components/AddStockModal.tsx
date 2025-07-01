@@ -61,24 +61,17 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   }, [isOpen]);
 
-  // Simple autofill prevention - just clear on focus
+  // Focus management - prevent modal shifting
   useEffect(() => {
     if (isOpen && symbolInputRef.current) {
-      const handleFocus = () => {
-        // Small delay to let autofill happen, then clear
-        setTimeout(() => {
-          if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
-            symbolInputRef.current.value = ticker;
-          }
-        }, 100);
-      };
-
-      symbolInputRef.current.addEventListener('focus', handleFocus);
-      return () => {
-        symbolInputRef.current?.removeEventListener('focus', handleFocus);
-      };
+      // Focus the input after a short delay to prevent layout shifts
+      const timer = setTimeout(() => {
+        symbolInputRef.current?.focus();
+      }, 50);
+      
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, ticker]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (currentPrice) {
@@ -200,12 +193,12 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ minHeight: '100vh' }}>
       {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" style={{ transform: 'translateZ(0)' }}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Add Stock</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
@@ -219,10 +212,6 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               Stock Symbol
             </label>
             <div className="flex gap-2">
-              {/* Hidden inputs to trick password managers */}
-              <input type="text" style={{ display: 'none' }} autoComplete="username" />
-              <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
-              
               <input
                 ref={symbolInputRef}
                 type="text"
