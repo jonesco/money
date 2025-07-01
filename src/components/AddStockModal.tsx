@@ -200,12 +200,12 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+      <div className="relative bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Add Stock</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
