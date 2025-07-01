@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRightOnRectangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, ArrowPathIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const { user, signOut, loading } = useAuth();
@@ -13,6 +13,11 @@ export default function Navbar() {
 
   const handleRefresh = () => {
     window.location.reload();
+  };
+
+  const handleAddStock = () => {
+    // Navigate to dashboard with query parameter to open the modal
+    window.location.href = '/?openModal=true';
   };
 
   if (loading) {
@@ -46,6 +51,13 @@ export default function Navbar() {
                 title="Refresh"
               >
                 <ArrowPathIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={handleAddStock}
+                className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
+                title="Add Stock"
+              >
+                <PlusIcon className="h-6 w-6" />
               </button>
               <button
                 onClick={handleSignOut}

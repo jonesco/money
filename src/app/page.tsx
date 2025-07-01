@@ -48,6 +48,19 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
+  // Check for URL parameter to open modal
+  useEffect(() => {
+    if (user && !authLoading) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('openModal') === 'true') {
+        setIsModalOpen(true);
+        // Clean up the URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, [user, authLoading]);
+
   // Fetch user's watchlist from database
   const { data: watchlist = [], isLoading: watchlistLoading } = useQuery({
     queryKey: ['watchlist', user?.id],
