@@ -193,14 +193,28 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+    <div className="fixed inset-0 z-50" style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      right: 0, 
+      bottom: 0,
+      width: '100vw',
+      height: '100vh'
+    }}>
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md overflow-y-auto z-10" style={{ 
+      <div className="fixed bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md overflow-y-auto z-10" style={{ 
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
         maxHeight: 'calc(100vh - 2rem)',
-        minHeight: 'min-content'
+        minHeight: 'min-content',
+        width: 'calc(100vw - 2rem)',
+        maxWidth: '28rem'
       }}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Add Stock</h2>
