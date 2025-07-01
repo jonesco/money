@@ -193,12 +193,12 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 p-4">
+    <div className="fixed inset-0 z-50 p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md overflow-y-auto z-10" style={{ 
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md overflow-y-auto z-10" style={{ 
         maxHeight: 'calc(100vh - 2rem)',
         minHeight: 'min-content'
       }}>
