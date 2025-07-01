@@ -82,6 +82,32 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   }, [isOpen, ticker]);
 
+  // Mobile-specific autofill prevention
+  useEffect(() => {
+    if (isOpen && symbolInputRef.current) {
+      // Continuous monitoring for mobile autofill
+      const interval = setInterval(() => {
+        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
+          symbolInputRef.current.value = ticker;
+        }
+      }, 100);
+
+      // Also monitor for visibility changes (pull-to-refresh)
+      const handleVisibilityChange = () => {
+        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
+          symbolInputRef.current.value = ticker;
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      return () => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    }
+  }, [isOpen, ticker]);
+
   useEffect(() => {
     if (currentPrice) {
       const low = currentPrice * 0.9;
@@ -225,18 +251,26 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               <input type="text" style={{ display: 'none' }} autoComplete="username" />
               <input type="password" style={{ display: 'none' }} autoComplete="current-password" />
               
+              {/* Mobile-specific hidden inputs */}
+              <input type="email" style={{ display: 'none' }} autoComplete="email" />
+              <input type="tel" style={{ display: 'none' }} autoComplete="tel" />
+              
               <input
                 ref={symbolInputRef}
-                type="text"
+                type="search"
                 id="symbol"
                 name="stock-symbol"
                 data-form-type="other"
                 data-lpignore="true"
                 data-1p-ignore="true"
-                autoComplete="off"
+                data-kwignore="true"
+                data-bwignore="true"
+                autoComplete="new-password"
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck="false"
+                inputMode="text"
+                enterKeyHint="search"
                 value={ticker}
                 onChange={handleTickerChange}
                 onKeyDown={e => {
@@ -250,6 +284,12 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                   if (e.target.value && e.target.value !== ticker) {
                     e.target.value = ticker;
                   }
+                  // Force focus to clear any mobile autofill
+                  setTimeout(() => {
+                    if (e.target.value && e.target.value !== ticker) {
+                      e.target.value = ticker;
+                    }
+                  }, 0);
                 }}
                 onBlur={(e) => {
                   // Clear any autofilled value on blur
@@ -261,6 +301,22 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                   // Additional check on input event
                   if (e.currentTarget.value && e.currentTarget.value !== ticker) {
                     e.currentTarget.value = ticker;
+                  }
+                }}
+                onCompositionStart={(e) => {
+                  // Prevent composition events from interfering
+                  e.preventDefault();
+                }}
+                onCompositionEnd={(e) => {
+                  // Clear any composition text
+                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
+                    e.currentTarget.value = ticker;
+                  }
+                }}
+                onBeforeInput={(e) => {
+                  // Prevent any input that doesn't match our expected value
+                  if (e.data && e.data !== ticker) {
+                    e.preventDefault();
                   }
                 }}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
