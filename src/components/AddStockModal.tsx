@@ -101,13 +101,6 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
 
       document.addEventListener('visibilitychange', handleVisibilityChange);
       
-      // Safari-specific: Monitor for autofill changes
-      const handleInput = () => {
-        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
-          symbolInputRef.current.value = ticker;
-        }
-      };
-
       // Safari-specific: Use MutationObserver to watch for autofill
       const observer = new MutationObserver(() => {
         if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
