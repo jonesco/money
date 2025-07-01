@@ -101,9 +101,33 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
 
       document.addEventListener('visibilitychange', handleVisibilityChange);
       
+      // Safari-specific: Monitor for autofill changes
+      const handleInput = () => {
+        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
+          symbolInputRef.current.value = ticker;
+        }
+      };
+
+      // Safari-specific: Use MutationObserver to watch for autofill
+      const observer = new MutationObserver(() => {
+        if (symbolInputRef.current && symbolInputRef.current.value !== ticker) {
+          symbolInputRef.current.value = ticker;
+        }
+      });
+
+      if (symbolInputRef.current) {
+        observer.observe(symbolInputRef.current, {
+          attributes: true,
+          attributeFilter: ['style', 'value'],
+          childList: false,
+          subtree: false
+        });
+      }
+      
       return () => {
         clearInterval(interval);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
+        observer.disconnect();
       };
     }
   }, [isOpen, ticker]);
@@ -255,9 +279,14 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               <input type="email" style={{ display: 'none' }} autoComplete="email" />
               <input type="tel" style={{ display: 'none' }} autoComplete="tel" />
               
+              {/* Safari-specific hidden inputs */}
+              <input type="text" style={{ display: 'none' }} name="username" autoComplete="username" />
+              <input type="password" style={{ display: 'none' }} name="password" autoComplete="current-password" />
+              <input type="email" style={{ display: 'none' }} name="email" autoComplete="email" />
+              
               <input
                 ref={symbolInputRef}
-                type="search"
+                type="text"
                 id="symbol"
                 name="stock-symbol"
                 data-form-type="other"
@@ -265,7 +294,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                 data-1p-ignore="true"
                 data-kwignore="true"
                 data-bwignore="true"
-                autoComplete="new-password"
+                autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck="false"
@@ -319,8 +348,19 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                     e.preventDefault();
                   }
                 }}
+                onAnimationStart={(e) => {
+                  // Safari-specific event to catch autofill
+                  if (e.currentTarget.value && e.currentTarget.value !== ticker) {
+                    e.currentTarget.value = ticker;
+                  }
+                }}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="Enter stock symbol (e.g., AAPL)"
+                style={{
+                  WebkitAppearance: 'none',
+                  WebkitBorderRadius: '0.5rem',
+                  WebkitBoxShadow: 'none'
+                }}
                 required
               />
               <button
