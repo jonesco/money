@@ -76,7 +76,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Tooltip text="Refresh page and update stock prices">
+              <Tooltip text="Refresh">
                 <button
                   onClick={handleRefresh}
                   className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
@@ -84,7 +84,7 @@ export default function Navbar() {
                   <ArrowPathIcon className="h-6 w-6" />
                 </button>
               </Tooltip>
-              <Tooltip text="Add a new stock to your watchlist">
+              <Tooltip text="Add Stock">
                 <button
                   onClick={handleAddStock}
                   className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
@@ -92,7 +92,7 @@ export default function Navbar() {
                   <PlusIcon className="h-6 w-6" />
                 </button>
               </Tooltip>
-              <Tooltip text="Sign out of your account">
+              <Tooltip text="Logout">
                 <button
                   onClick={handleSignOut}
                   className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
