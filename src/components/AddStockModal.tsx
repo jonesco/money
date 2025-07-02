@@ -128,42 +128,48 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
 
     try {
       const response = await axios.get(`/api/stocks?symbol=${ticker}`);
-      const price = response.data.price;
-      const company = response.data.companyName;
-      
-      setCurrentPrice(price);
-      setCompanyName(company);
-      
-      // Auto-calculate thresholds
-      const low = price * 0.9;
-      const high = price * 1.1;
-      setLowPrice(Number(low.toFixed(2)));
-      setHighPrice(Number(high.toFixed(2)));
-      setLowPercentage(-10);
-      setHighPercentage(10);
-      
-      // Automatically add the stock
-      onAdd({
-        symbol: ticker,
-        price: price,
-        change: 0,
-        changePercent: "0",
-        volume: 0,
-        latestTradingDay: new Date().toISOString().split('T')[0],
-        companyName: company,
-        lowPrice: Number(low.toFixed(2)),
-        highPrice: Number(high.toFixed(2)),
-        lowPercentage: -10,
-        highPercentage: 10,
-        initialPrice: price,
-      });
-      
-      handleClose();
+      setCurrentPrice(response.data.price);
+      setCompanyName(response.data.companyName);
     } catch {
       setError('Failed to fetch stock data. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAddStock = () => {
+    if (!currentPrice || !lowPrice || !highPrice) {
+      setError('Please set all required fields');
+      return;
+    }
+
+    if (lowPrice >= highPrice) {
+      setError('Low price must be less than high price');
+      return;
+    }
+
+    // Double check stock doesn't exist before adding
+    if (existingStocks.some(stock => stock.symbol === ticker)) {
+      setError('This stock is already being tracked');
+      return;
+    }
+
+    onAdd({
+      symbol: ticker,
+      price: currentPrice,
+      change: 0,
+      changePercent: "0",
+      volume: 0,
+      latestTradingDay: new Date().toISOString().split('T')[0],
+      companyName,
+      lowPrice,
+      highPrice,
+      lowPercentage: lowPercentage || 0,
+      highPercentage: highPercentage || 0,
+      initialPrice: currentPrice,
+    });
+
+    handleClose();
   };
 
   const handleLowPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -353,14 +359,25 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
             >
               Cancel
             </button>
-            <button
-              type="button"
-              onClick={handleGetPrice}
-              disabled={isLoading || !ticker}
-              className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 disabled:opacity-50"
-            >
-              {isLoading ? 'Loading...' : 'Get Price'}
-            </button>
+            {!currentPrice ? (
+              <button
+                type="button"
+                onClick={handleGetPrice}
+                disabled={isLoading || !ticker}
+                className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 disabled:opacity-50"
+              >
+                {isLoading ? 'Loading...' : 'Get Price'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAddStock}
+                disabled={!lowPrice || !highPrice || lowPrice >= highPrice}
+                className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 disabled:opacity-50"
+              >
+                Add Stock
+              </button>
+            )}
           </div>
         </div>
       </div>
