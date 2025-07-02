@@ -219,18 +219,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header with Add Stock */}
-        <div className="flex justify-between items-center mb-8 mt-2">
-          <p className="text-gray-600 text-lg">Welcome back, {user.email?.split('@')[0]}!</p>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 flex items-center gap-2 whitespace-nowrap"
-          >
-            <PlusIcon className="w-5 h-5" />
-            Add Stock
-          </button>
-        </div>
+
 
         {watchlistLoading && (
           <div className="text-center py-8">
