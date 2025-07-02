@@ -182,7 +182,7 @@ export default function StockCard({
           </div>
 
           {/* Action icons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="text-gray-600 hover:text-gray-900"
@@ -198,10 +198,10 @@ export default function StockCard({
             >
               <TrashIcon className="w-5 h-5" />
             </button>
+            <button onClick={() => setIsExpanded(!isExpanded)} className="hover:text-gray-900 text-gray-600 transition-colors duration-200 md:hidden" title={isExpanded ? 'Collapse' : 'Expand'}>
+              {isExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+            </button>
           </div>
-          <button onClick={() => setIsExpanded(!isExpanded)} className="hover:text-gray-900 text-gray-600 transition-colors duration-200 md:hidden" title={isExpanded ? 'Collapse' : 'Expand'}>
-            {isExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
-          </button>
         </div>
 
         {/* Expanded area (if needed) */}
