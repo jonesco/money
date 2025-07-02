@@ -264,15 +264,21 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
 
           {currentPrice && (
             <>
+              {companyName && (
+                <div className="bg-[#1E2026] p-3 rounded-lg border border-gray-700">
+                  <p className="text-lg font-semibold text-white">
+                    {companyName}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {ticker}
+                  </p>
+                </div>
+              )}
+
               <div className="bg-[#1E2026] p-3 rounded-lg border border-gray-700">
                 <p className="text-sm text-gray-300">
                   Current price: ${currentPrice.toFixed(2)}
                 </p>
-                {companyName && (
-                  <p className="text-sm text-gray-300">
-                    Company: {companyName}
-                  </p>
-                )}
               </div>
 
               <div>
