@@ -128,8 +128,37 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
 
     try {
       const response = await axios.get(`/api/stocks?symbol=${ticker}`);
-      setCurrentPrice(response.data.price);
-      setCompanyName(response.data.companyName);
+      const price = response.data.price;
+      const company = response.data.companyName;
+      
+      setCurrentPrice(price);
+      setCompanyName(company);
+      
+      // Auto-calculate thresholds
+      const low = price * 0.9;
+      const high = price * 1.1;
+      setLowPrice(Number(low.toFixed(2)));
+      setHighPrice(Number(high.toFixed(2)));
+      setLowPercentage(-10);
+      setHighPercentage(10);
+      
+      // Automatically add the stock
+      onAdd({
+        symbol: ticker,
+        price: price,
+        change: 0,
+        changePercent: "0",
+        volume: 0,
+        latestTradingDay: new Date().toISOString().split('T')[0],
+        companyName: company,
+        lowPrice: Number(low.toFixed(2)),
+        highPrice: Number(high.toFixed(2)),
+        lowPercentage: -10,
+        highPercentage: 10,
+        initialPrice: price,
+      });
+      
+      handleClose();
     } catch {
       setError('Failed to fetch stock data. Please try again.');
     } finally {
@@ -173,42 +202,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!currentPrice || !lowPrice || !highPrice) {
-      setError('Please fetch the current price first');
-      return;
-    }
 
-    if (lowPrice >= highPrice) {
-      setError('Low price must be less than high price');
-      return;
-    }
-
-    // Double check stock doesn't exist before adding
-    if (existingStocks.some(stock => stock.symbol === ticker)) {
-      setError('This stock is already being tracked');
-      return;
-    }
-
-    onAdd({
-      symbol: ticker,
-      price: currentPrice,
-      change: 0,
-      changePercent: "0",
-      volume: 0,
-      latestTradingDay: new Date().toISOString().split('T')[0],
-      companyName,
-      lowPrice,
-      highPrice,
-      lowPercentage: lowPercentage || 0,
-      highPercentage: highPercentage || 0,
-      initialPrice: currentPrice,
-    });
-
-    handleClose();
-  };
 
   if (!isOpen) return null;
 
@@ -234,42 +228,32 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div>
             <label htmlFor="symbol" className="block text-sm font-medium text-gray-300 mb-1">
               Stock Symbol
             </label>
-            <div className="flex gap-2">
-              <input
-                ref={symbolInputRef}
-                type="text"
-                id="symbol"
-                name="stock-symbol"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="characters"
-                spellCheck="false"
-                value={ticker}
-                onChange={handleTickerChange}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleGetPrice();
-                  }
-                }}
-                className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-                placeholder="Enter stock symbol (e.g., AAPL)"
-                required
-              />
-              <button
-                type="button"
-                onClick={handleGetPrice}
-                disabled={isLoading}
-                className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 disabled:opacity-50"
-              >
-                {isLoading ? 'Loading...' : 'Get Price'}
-              </button>
-            </div>
+            <input
+              ref={symbolInputRef}
+              type="text"
+              id="symbol"
+              name="stock-symbol"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="characters"
+              spellCheck="false"
+              value={ticker}
+              onChange={handleTickerChange}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleGetPrice();
+                }
+              }}
+              className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+              placeholder="Enter stock symbol (e.g., AAPL)"
+              required
+            />
           </div>
 
           {currentPrice && (
@@ -370,14 +354,15 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
               Cancel
             </button>
             <button
-              type="submit"
-              disabled={!currentPrice}
+              type="button"
+              onClick={handleGetPrice}
+              disabled={isLoading || !ticker}
               className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 disabled:opacity-50"
             >
-              Add Stock
+              {isLoading ? 'Loading...' : 'Get Price'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
