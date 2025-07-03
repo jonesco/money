@@ -17,12 +17,12 @@ export default function DeleteConfirmationModal({ isOpen, onClose, onConfirm, sy
       
       {/* Modal */}
       <div
-        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
+        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto mx-4"
         style={{
           top: '112px',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '100%',
+          width: 'calc(100% - 2rem)',
           maxWidth: '28rem',
           height: 'auto',
           maxHeight: 'calc(100vh - 4rem - 2rem)',
