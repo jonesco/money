@@ -65,7 +65,7 @@ input, textarea {
 
 /* Add padding to main content to account for fixed header */
 main {
-  padding-top: calc(64px + max(0px, env(safe-area-inset-top)));
+  padding-top: calc(84px + max(0px, env(safe-area-inset-top)));
 }
 
 /* Allow pull-to-refresh but prevent password autofill */
