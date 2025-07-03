@@ -45,6 +45,42 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
     }
   }, [isOpen, stock]);
 
+  const handleLowPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value) && initialPrice) {
+      setLowPrice(value);
+      const percentage = ((value - initialPrice) / initialPrice) * 100;
+      setLowPercentage(Number(percentage.toFixed(2)));
+    }
+  };
+
+  const handleHighPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value) && initialPrice) {
+      setHighPrice(value);
+      const percentage = ((value - initialPrice) / initialPrice) * 100;
+      setHighPercentage(Number(percentage.toFixed(2)));
+    }
+  };
+
+  const handleLowPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value) && initialPrice) {
+      setLowPercentage(value);
+      const price = initialPrice * (1 + value / 100);
+      setLowPrice(Number(price.toFixed(2)));
+    }
+  };
+
+  const handleHighPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value) && initialPrice) {
+      setHighPercentage(value);
+      const price = initialPrice * (1 + value / 100);
+      setHighPrice(Number(price.toFixed(2)));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -129,32 +165,54 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
             <label htmlFor="lowPrice" className="block text-sm font-medium text-gray-300 mb-1">
               Low Price
             </label>
-            <input
-              type="number"
-              id="lowPrice"
-              value={lowPrice}
-              onChange={(e) => setLowPrice(Number(e.target.value))}
-              className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-              placeholder="Enter low price"
-              step="0.01"
-              required
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                id="lowPrice"
+                value={lowPrice}
+                onChange={handleLowPriceChange}
+                className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+                placeholder="Enter low price"
+                step="0.01"
+                required
+              />
+              <input
+                type="number"
+                value={lowPercentage}
+                onChange={handleLowPercentageChange}
+                className="w-24 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+                placeholder="%"
+                step="0.1"
+                required
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="highPrice" className="block text-sm font-medium text-gray-300 mb-1">
               High Price
             </label>
-            <input
-              type="number"
-              id="highPrice"
-              value={highPrice}
-              onChange={(e) => setHighPrice(Number(e.target.value))}
-              className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-              placeholder="Enter high price"
-              step="0.01"
-              required
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                id="highPrice"
+                value={highPrice}
+                onChange={handleHighPriceChange}
+                className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+                placeholder="Enter high price"
+                step="0.01"
+                required
+              />
+              <input
+                type="number"
+                value={highPercentage}
+                onChange={handleHighPercentageChange}
+                className="w-24 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+                placeholder="%"
+                step="0.1"
+                required
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
