@@ -32,7 +32,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
   const [lowPercentage, setLowPercentage] = useState(stock.lowPercentage);
   const [highPercentage, setHighPercentage] = useState(stock.highPercentage);
   const [initialPrice, setInitialPrice] = useState(stock.initialPrice);
-  const [symbol, setSymbol] = useState<string>(stock.symbol);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,7 +40,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       setLowPercentage(stock.lowPercentage);
       setHighPercentage(stock.highPercentage);
       setInitialPrice(stock.initialPrice);
-      setSymbol(stock.symbol);
     }
   }, [isOpen, stock]);
 
