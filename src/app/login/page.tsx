@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
 
@@ -31,6 +33,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex items-start justify-center px-4" style={{ paddingTop: '112px' }}>
+      <ForgotPasswordModal isOpen={forgotOpen} onClose={() => setForgotOpen(false)} />
       <div className="max-w-md w-full">
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 shadow-sm">
           <div className="text-center mb-8">
@@ -68,6 +71,15 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
               />
+              <div className="text-right mt-2">
+                <button
+                  type="button"
+                  className="text-sm text-black hover:underline focus:outline-none"
+                  onClick={() => setForgotOpen(true)}
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
 
             {error && (
