@@ -170,62 +170,95 @@ export default function Home() {
   // Add stock to watchlist mutation
   const addStockMutation = useMutation({
     mutationFn: async (stockData: StockData) => {
+      console.log('=== ADD STOCK MUTATION START ===');
       console.log('Mutation function called with:', stockData);
+      console.log('Current user:', user?.id);
       
       // Get fresh session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !session?.access_token) {
+      console.log('Session check result:', {
+        hasSession: !!session,
+        hasToken: !!session?.access_token,
+        tokenLength: session?.access_token?.length,
+        sessionError: sessionError?.message
+      });
+      
+      if (sessionError) {
         console.error('Session error in mutation:', sessionError);
         await supabase.auth.signOut();
         router.push('/login');
         throw new Error('Authentication required');
       }
       
-      console.log('Session:', session ? 'Present' : 'Missing');
-      console.log('Session user:', session?.user?.id);
-      console.log('Token:', session.access_token ? `Present (${session.access_token.length} chars)` : 'Missing');
+      if (!session?.access_token) {
+        console.error('No access token available');
+        await supabase.auth.signOut();
+        router.push('/login');
+        throw new Error('Authentication required');
+      }
+      
+      console.log('Token preview:', session.access_token.substring(0, 20) + '...');
+      
+      const requestBody = {
+        stockSymbol: stockData.symbol,
+        upperThreshold: stockData.highPrice,
+        lowerThreshold: stockData.lowPrice,
+        currentPrice: stockData.price,
+        initialPrice: stockData.initialPrice || stockData.price,
+      };
+      
+      console.log('Request body:', requestBody);
       
       try {
-        const response = await axios.post('/api/watchlist', {
-          stockSymbol: stockData.symbol,
-          upperThreshold: stockData.highPrice,
-          lowerThreshold: stockData.lowPrice,
-          currentPrice: stockData.price,
-          initialPrice: stockData.initialPrice || stockData.price,
-        }, {
-          headers: { Authorization: `Bearer ${session.access_token}` }
+        console.log('Making API request...');
+        const response = await axios.post('/api/watchlist', requestBody, {
+          headers: { 
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
         });
-        console.log('API response:', response.data);
+        console.log('API response success:', response.data);
         return response.data;
       } catch (error: any) {
-        console.error('Add stock error:', error);
+        console.error('=== ADD STOCK ERROR ===');
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
+        console.error('Response status:', error.response?.status);
+        console.error('Response data:', error.response?.data);
+        console.error('Request headers:', error.config?.headers);
         
         // If 401, try to refresh session and retry
         if (error.response?.status === 401) {
-          console.log('401 error in mutation, attempting session refresh');
+          console.log('401 error detected, attempting session refresh...');
           const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
           
+          console.log('Refresh result:', {
+            hasRefreshedSession: !!refreshedSession,
+            hasRefreshedToken: !!refreshedSession?.access_token,
+            refreshError: refreshError?.message
+          });
+          
           if (refreshError || !refreshedSession?.access_token) {
-            console.log('Session refresh failed in mutation');
+            console.log('Session refresh failed, signing out');
             await supabase.auth.signOut();
             router.push('/login');
             throw new Error('Authentication required');
           }
           
+          console.log('Retrying with refreshed token...');
           // Retry with refreshed token
-          const retryResponse = await axios.post('/api/watchlist', {
-            stockSymbol: stockData.symbol,
-            upperThreshold: stockData.highPrice,
-            lowerThreshold: stockData.lowPrice,
-            currentPrice: stockData.price,
-            initialPrice: stockData.initialPrice || stockData.price,
-          }, {
-            headers: { Authorization: `Bearer ${refreshedSession.access_token}` }
+          const retryResponse = await axios.post('/api/watchlist', requestBody, {
+            headers: { 
+              Authorization: `Bearer ${refreshedSession.access_token}`,
+              'Content-Type': 'application/json'
+            }
           });
+          console.log('Retry successful:', retryResponse.data);
           return retryResponse.data;
         }
         
+        // Re-throw the error for the onError handler
         throw error;
       }
     },
@@ -234,17 +267,28 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
     },
     onError: (error: unknown) => {
-      console.error('Error adding stock:', error);
+      console.error('=== MUTATION ONERROR ===');
+      console.error('Error in onError:', error);
+      
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
+        console.error('Axios error details:', {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data
+        });
+        
         if (axiosError.response?.status === 409) {
           alert(`Stock is already in your watchlist!`);
         } else if (axiosError.response?.data?.error?.includes('Database table not set up')) {
           alert('Database not set up. Please contact the administrator to set up the database table.');
+        } else if (axiosError.response?.status === 401) {
+          alert('Authentication failed. Please log in again.');
+          router.push('/login');
         } else {
           alert('Failed to add stock. Please try again.');
         }
       } else {
+        console.error('Non-axios error:', error);
         alert('Failed to add stock. Please try again.');
       }
     },
