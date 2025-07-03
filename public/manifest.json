@@ -1,6 +1,6 @@
 {
   "name": "Buy↓Sell↑Hold",
-  "short_name": "StockTracker",
+  "short_name": "Buy↓Sell↑Hold",
   "description": "Track your favorite stocks in real-time",
   "start_url": "/",
   "display": "standalone",
