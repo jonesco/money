@@ -113,7 +113,7 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       {/* Modal */}
       <div
-        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto mx-4"
+        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
         style={{
           top: '112px',
           left: '50%',
