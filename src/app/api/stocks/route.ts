@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       if (profileResponse.data && profileResponse.data.name) {
         companyName = profileResponse.data.name;
       }
-    } catch (profileError) {
+    } catch {
       // If profile fetch fails, fallback to symbol
       companyName = symbol;
     }

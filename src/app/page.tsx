@@ -7,7 +7,6 @@ import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import StockCard from '@/components/StockCard';
 import AddStockModal from '@/components/AddStockModal';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { supabase } from '@/lib/supabase';
 
 interface StockData {
