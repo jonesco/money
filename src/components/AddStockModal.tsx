@@ -208,8 +208,6 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     }
   };
 
-
-
   if (!isOpen) return null;
 
   return (
@@ -235,47 +233,12 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label htmlFor="symbol" className="block text-sm font-medium text-gray-300 mb-1">
-              Stock Symbol
-            </label>
-            <input
-              ref={symbolInputRef}
-              type="text"
-              id="symbol"
-              name="stock-symbol"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="characters"
-              spellCheck="false"
-              value={ticker}
-              onChange={handleTickerChange}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleGetPrice();
-                }
-              }}
-              className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
-              placeholder="Enter stock symbol (e.g., AAPL)"
-              required
-            />
-          </div>
-
           {currentPrice && (
             <>
-              {companyName && (
-                <div className="bg-[#1E2026] p-3 rounded-lg border border-gray-700">
-                  <p className="text-lg font-semibold text-white">
-                    {companyName}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {ticker}
-                  </p>
-                </div>
-              )}
-
-              <div className="bg-[#1E2026] p-3 rounded-lg border border-gray-700">
+              <div className="my-6">
+                <p className="text-lg font-semibold text-white mb-1">
+                  {companyName} ({ticker})
+                </p>
                 <p className="text-sm text-gray-300">
                   Current price: ${currentPrice.toFixed(2)}
                 </p>
@@ -351,6 +314,36 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
                 </div>
               </div>
             </>
+          )}
+
+          {/* Show label and input only if price has not been fetched */}
+          {!currentPrice && (
+            <div>
+              <label htmlFor="symbol" className="block text-sm font-medium text-gray-300 mb-1">
+                Stock Symbol
+              </label>
+              <input
+                ref={symbolInputRef}
+                type="text"
+                id="symbol"
+                name="stock-symbol"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="characters"
+                spellCheck="false"
+                value={ticker}
+                onChange={handleTickerChange}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleGetPrice();
+                  }
+                }}
+                className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
+                placeholder="Enter stock symbol (e.g., AAPL)"
+                required
+              />
+            </div>
           )}
 
           {error && (

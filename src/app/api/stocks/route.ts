@@ -25,6 +25,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No data found for symbol' }, { status: 404 });
     }
 
+    // Fetch company name from Finnhub profile endpoint
+    let companyName = symbol;
+    try {
+      const profileResponse = await axios.get(
+        `https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${apiKey}`
+      );
+      if (profileResponse.data && profileResponse.data.name) {
+        companyName = profileResponse.data.name;
+      }
+    } catch (profileError) {
+      // If profile fetch fails, fallback to symbol
+      companyName = symbol;
+    }
+
     // Calculate percentage change
     const changePercent = ((data.dp / data.pc) * 100).toFixed(2);
 
@@ -35,6 +49,7 @@ export async function GET(request: Request) {
       changePercent: changePercent,
       volume: data.t,
       latestTradingDay: new Date().toISOString().split('T')[0],
+      companyName,
     });
   } catch (error) {
     console.error('Error fetching stock data:', error);
