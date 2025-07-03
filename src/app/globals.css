@@ -50,6 +50,15 @@ input, textarea {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
   }
+  .pwa-main-fix {
+    padding-top: calc(104px + env(safe-area-inset-top));
+  }
+}
+
+@media (display-mode: standalone) and (max-width: 820px) {
+  .pwa-main-fix {
+    padding-top: calc(104px + env(safe-area-inset-top));
+  }
 }
 
 /* Ensure fixed headers stay above status bar */

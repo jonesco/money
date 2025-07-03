@@ -460,7 +460,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      <div className="pt-[104px] max-w-7xl mx-auto px-4">
+      <div className="pwa-main-fix max-w-7xl mx-auto px-4">
         {watchlistLoading && (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderBottomColor: '#6b21a8' }}></div>
