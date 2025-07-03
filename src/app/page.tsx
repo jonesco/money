@@ -40,29 +40,6 @@ export default function Home() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Utility function to handle session refresh
-  const refreshSessionAndRetry = async (operation: () => Promise<any>) => {
-    try {
-      return await operation();
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        console.log('401 error detected, attempting session refresh');
-        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-        
-        if (refreshError || !refreshedSession?.access_token) {
-          console.log('Session refresh failed, signing out');
-          await supabase.auth.signOut();
-          router.push('/login');
-          throw new Error('Authentication required');
-        }
-        
-        console.log('Session refreshed successfully, retrying operation');
-        return await operation();
-      }
-      throw error;
-    }
-  };
-
   // Debug session on mount
   useEffect(() => {
     if (user) {
@@ -126,11 +103,11 @@ export default function Home() {
           headers: { Authorization: `Bearer ${session.access_token}` }
         });
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Watchlist fetch error:', error);
         
         // If 401, try to refresh session
-        if (error.response?.status === 401) {
+        if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 401) {
           console.log('401 error, attempting session refresh');
           const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
           
@@ -220,16 +197,16 @@ export default function Home() {
         });
         console.log('API response success:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('=== ADD STOCK ERROR ===');
-        console.error('Error type:', error.constructor.name);
-        console.error('Error message:', error.message);
-        console.error('Response status:', error.response?.status);
-        console.error('Response data:', error.response?.data);
-        console.error('Request headers:', error.config?.headers);
+        console.error('Error type:', error && typeof error === 'object' && 'constructor' in error ? (error as any).constructor.name : 'Unknown');
+        console.error('Error message:', error && typeof error === 'object' && 'message' in error ? (error as any).message : 'No error message');
+        console.error('Response status:', error && typeof error === 'object' && 'response' in error && (error as any).response && typeof (error as any).response === 'object' && 'status' in (error as any).response ? (error as any).response.status : 'No response status');
+        console.error('Response data:', error && typeof error === 'object' && 'response' in error && (error as any).response && typeof (error as any).response === 'object' && 'data' in (error as any).response ? (error as any).response.data : 'No response data');
+        console.error('Request headers:', error && typeof error === 'object' && 'config' in error && (error as any).config && typeof (error as any).config === 'object' && 'headers' in (error as any).config ? (error as any).config.headers : 'No request headers');
         
         // If 401, try to refresh session and retry
-        if (error.response?.status === 401) {
+        if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 401) {
           console.log('401 error detected, attempting session refresh...');
           const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
           
@@ -273,15 +250,15 @@ export default function Home() {
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
         console.error('Axios error details:', {
-          status: axiosError.response?.status,
-          data: axiosError.response?.data
+          status: (axiosError.response as any).status,
+          data: (axiosError.response as any).data
         });
         
-        if (axiosError.response?.status === 409) {
+        if ((axiosError.response as any).status === 409) {
           alert(`Stock is already in your watchlist!`);
-        } else if (axiosError.response?.data?.error?.includes('Database table not set up')) {
+        } else if ((axiosError.response as any).data?.error?.includes('Database table not set up')) {
           alert('Database not set up. Please contact the administrator to set up the database table.');
-        } else if (axiosError.response?.status === 401) {
+        } else if ((axiosError.response as any).status === 401) {
           alert('Authentication failed. Please log in again.');
           router.push('/login');
         } else {
@@ -327,11 +304,11 @@ export default function Home() {
         });
         console.log('Update: API response:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Update stock error:', error);
         
         // If 401, try to refresh session and retry
-        if (error.response?.status === 401) {
+        if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 401) {
           console.log('401 error in update mutation, attempting session refresh');
           const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
           
@@ -356,7 +333,7 @@ export default function Home() {
       console.log('Update: Success, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('Update: Error updating stock:', error);
     },
   });
@@ -378,11 +355,11 @@ export default function Home() {
         await axios.delete(`/api/watchlist?id=${stockId}`, {
           headers: { Authorization: `Bearer ${session.access_token}` }
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Delete stock error:', error);
         
         // If 401, try to refresh session and retry
-        if (error.response?.status === 401) {
+        if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 401) {
           console.log('401 error in delete mutation, attempting session refresh');
           const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
           
