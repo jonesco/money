@@ -40,6 +40,42 @@ export default function Home() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Utility function to handle session refresh
+  const refreshSessionAndRetry = async (operation: () => Promise<any>) => {
+    try {
+      return await operation();
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        console.log('401 error detected, attempting session refresh');
+        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError || !refreshedSession?.access_token) {
+          console.log('Session refresh failed, signing out');
+          await supabase.auth.signOut();
+          router.push('/login');
+          throw new Error('Authentication required');
+        }
+        
+        console.log('Session refreshed successfully, retrying operation');
+        return await operation();
+      }
+      throw error;
+    }
+  };
+
+  // Debug session on mount
+  useEffect(() => {
+    if (user) {
+      console.log('Home: User authenticated:', user.id);
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        console.log('Home: Session check:', session ? 'Valid' : 'Invalid', error);
+        if (session?.access_token) {
+          console.log('Home: Token length:', session.access_token.length);
+        }
+      });
+    }
+  }, [user]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
@@ -67,14 +103,65 @@ export default function Home() {
     queryKey: ['watchlist', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      const response = await axios.get('/api/watchlist', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      
+      // Get fresh session and handle potential auth issues
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        // Force re-authentication
+        await supabase.auth.signOut();
+        router.push('/login');
+        return [];
+      }
+      
+      if (!session?.access_token) {
+        console.log('No access token, redirecting to login');
+        router.push('/login');
+        return [];
+      }
+      
+      try {
+        const response = await axios.get('/api/watchlist', {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        return response.data;
+      } catch (error: any) {
+        console.error('Watchlist fetch error:', error);
+        
+        // If 401, try to refresh session
+        if (error.response?.status === 401) {
+          console.log('401 error, attempting session refresh');
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError || !refreshedSession?.access_token) {
+            console.log('Session refresh failed, redirecting to login');
+            await supabase.auth.signOut();
+            router.push('/login');
+            return [];
+          }
+          
+          // Retry with refreshed token
+          try {
+            const retryResponse = await axios.get('/api/watchlist', {
+              headers: { Authorization: `Bearer ${refreshedSession.access_token}` }
+            });
+            return retryResponse.data;
+          } catch (retryError) {
+            console.error('Retry failed:', retryError);
+            await supabase.auth.signOut();
+            router.push('/login');
+            return [];
+          }
+        }
+        
+        // For other errors, return empty array
+        return [];
+      }
     },
     enabled: !!user?.id,
+    retry: 1,
+    retryDelay: 1000,
   });
 
   // Use watchlist directly without filtering
@@ -84,23 +171,63 @@ export default function Home() {
   const addStockMutation = useMutation({
     mutationFn: async (stockData: StockData) => {
       console.log('Mutation function called with:', stockData);
-      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Get fresh session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error in mutation:', sessionError);
+        await supabase.auth.signOut();
+        router.push('/login');
+        throw new Error('Authentication required');
+      }
+      
       console.log('Session:', session ? 'Present' : 'Missing');
       console.log('Session user:', session?.user?.id);
-      const token = session?.access_token;
-      console.log('Token:', token ? `Present (${token.length} chars)` : 'Missing');
+      console.log('Token:', session.access_token ? `Present (${session.access_token.length} chars)` : 'Missing');
       
-      const response = await axios.post('/api/watchlist', {
-        stockSymbol: stockData.symbol,
-        upperThreshold: stockData.highPrice,
-        lowerThreshold: stockData.lowPrice,
-        currentPrice: stockData.price,
-        initialPrice: stockData.initialPrice || stockData.price,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log('API response:', response.data);
-      return response.data;
+      try {
+        const response = await axios.post('/api/watchlist', {
+          stockSymbol: stockData.symbol,
+          upperThreshold: stockData.highPrice,
+          lowerThreshold: stockData.lowPrice,
+          currentPrice: stockData.price,
+          initialPrice: stockData.initialPrice || stockData.price,
+        }, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        console.log('API response:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('Add stock error:', error);
+        
+        // If 401, try to refresh session and retry
+        if (error.response?.status === 401) {
+          console.log('401 error in mutation, attempting session refresh');
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError || !refreshedSession?.access_token) {
+            console.log('Session refresh failed in mutation');
+            await supabase.auth.signOut();
+            router.push('/login');
+            throw new Error('Authentication required');
+          }
+          
+          // Retry with refreshed token
+          const retryResponse = await axios.post('/api/watchlist', {
+            stockSymbol: stockData.symbol,
+            upperThreshold: stockData.highPrice,
+            lowerThreshold: stockData.lowPrice,
+            currentPrice: stockData.price,
+            initialPrice: stockData.initialPrice || stockData.price,
+          }, {
+            headers: { Authorization: `Bearer ${refreshedSession.access_token}` }
+          });
+          return retryResponse.data;
+        }
+        
+        throw error;
+      }
     },
     onSuccess: () => {
       console.log('Stock added successfully');
@@ -128,9 +255,18 @@ export default function Home() {
     mutationFn: async (stockData: StockData) => {
       console.log('Update mutation called with:', stockData);
       if (!stockData.id) throw new Error('Stock ID required');
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      console.log('Update: Token present:', !!token);
+      
+      // Get fresh session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error in update mutation:', sessionError);
+        await supabase.auth.signOut();
+        router.push('/login');
+        throw new Error('Authentication required');
+      }
+      
+      console.log('Update: Token present:', !!session.access_token);
       
       const requestBody = {
         id: stockData.id,
@@ -141,11 +277,36 @@ export default function Home() {
       };
       console.log('Update: Request body:', requestBody);
       
-      const response = await axios.put('/api/watchlist', requestBody, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log('Update: API response:', response.data);
-      return response.data;
+      try {
+        const response = await axios.put('/api/watchlist', requestBody, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        console.log('Update: API response:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('Update stock error:', error);
+        
+        // If 401, try to refresh session and retry
+        if (error.response?.status === 401) {
+          console.log('401 error in update mutation, attempting session refresh');
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError || !refreshedSession?.access_token) {
+            console.log('Session refresh failed in update mutation');
+            await supabase.auth.signOut();
+            router.push('/login');
+            throw new Error('Authentication required');
+          }
+          
+          // Retry with refreshed token
+          const retryResponse = await axios.put('/api/watchlist', requestBody, {
+            headers: { Authorization: `Bearer ${refreshedSession.access_token}` }
+          });
+          return retryResponse.data;
+        }
+        
+        throw error;
+      }
     },
     onSuccess: () => {
       console.log('Update: Success, invalidating queries');
@@ -159,11 +320,43 @@ export default function Home() {
   // Delete stock mutation
   const deleteStockMutation = useMutation({
     mutationFn: async (stockId: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      await axios.delete(`/api/watchlist?id=${stockId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Get fresh session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error in delete mutation:', sessionError);
+        await supabase.auth.signOut();
+        router.push('/login');
+        throw new Error('Authentication required');
+      }
+      
+      try {
+        await axios.delete(`/api/watchlist?id=${stockId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+      } catch (error: any) {
+        console.error('Delete stock error:', error);
+        
+        // If 401, try to refresh session and retry
+        if (error.response?.status === 401) {
+          console.log('401 error in delete mutation, attempting session refresh');
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError || !refreshedSession?.access_token) {
+            console.log('Session refresh failed in delete mutation');
+            await supabase.auth.signOut();
+            router.push('/login');
+            throw new Error('Authentication required');
+          }
+          
+          // Retry with refreshed token
+          await axios.delete(`/api/watchlist?id=${stockId}`, {
+            headers: { Authorization: `Bearer ${refreshedSession.access_token}` }
+          });
+        } else {
+          throw error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
