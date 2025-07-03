@@ -55,6 +55,15 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
+                document.body.classList.add('ios-standalone');
+              }
+            `,
+          }}
+        />
       </head>
       <body className={workSans.className}>
         <Providers>

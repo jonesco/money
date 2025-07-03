@@ -68,8 +68,8 @@ input, textarea {
   left: 0;
   right: 0;
   z-index: 50;
-  padding-top: max(0px, env(safe-area-inset-top));
   background: #ffffff;
+  padding-top: max(0px, env(safe-area-inset-top));
 }
 
 /* Add padding to main content to account for fixed header */
@@ -80,4 +80,12 @@ main {
 /* Allow pull-to-refresh but prevent password autofill */
 main {
   -webkit-overflow-scrolling: touch;
+}
+
+.pwa-main-fix {
+  padding-top: 104px;
+}
+
+body.ios-standalone .pwa-main-fix {
+  padding-top: calc(104px + env(safe-area-inset-top));
 }
