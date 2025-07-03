@@ -423,20 +423,26 @@ export default function Home() {
   };
 
   // Convert watchlist items to StockData format for StockCard
-  const convertWatchlistToStockData = (item: WatchlistItem): StockData => ({
-    id: item.id,
-    symbol: item.stock_symbol,
-    price: item.current_price,
-    change: 0, // Will be updated when we fetch current price
-    changePercent: '0%',
-    volume: 0,
-    latestTradingDay: new Date().toISOString().split('T')[0],
-    lowPrice: item.lower_threshold,
-    highPrice: item.upper_threshold,
-    lowPercentage: 0,
-    highPercentage: 0,
-    initialPrice: item.initial_price,
-  });
+  const convertWatchlistToStockData = (item: WatchlistItem): StockData => {
+    const initialPrice = item.initial_price || item.current_price;
+    const lowPercentage = initialPrice ? ((item.lower_threshold - initialPrice) / initialPrice) * 100 : 0;
+    const highPercentage = initialPrice ? ((item.upper_threshold - initialPrice) / initialPrice) * 100 : 0;
+    
+    return {
+      id: item.id,
+      symbol: item.stock_symbol,
+      price: item.current_price,
+      change: 0, // Will be updated when we fetch current price
+      changePercent: '0%',
+      volume: 0,
+      latestTradingDay: new Date().toISOString().split('T')[0],
+      lowPrice: item.lower_threshold,
+      highPrice: item.upper_threshold,
+      lowPercentage: Number(lowPercentage.toFixed(2)),
+      highPercentage: Number(highPercentage.toFixed(2)),
+      initialPrice: initialPrice,
+    };
+  };
 
   // Show loading while checking authentication
   if (authLoading) {
