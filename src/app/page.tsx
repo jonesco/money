@@ -216,7 +216,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 p-4 md:p-8">
+    <main className="min-h-screen bg-white text-gray-900">
       <div className="max-w-7xl mx-auto">
 
 
