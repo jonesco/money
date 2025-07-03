@@ -131,18 +131,13 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="symbol" className="block text-sm font-medium text-gray-300 mb-1">
-              Stock Symbol
-            </label>
-            <input
-              type="text"
-              id="symbol"
-              value={symbol}
-              readOnly
-              className="w-full px-4 py-2 bg-[#2A2D36] border border-gray-600 rounded-lg text-gray-300 cursor-not-allowed"
-              placeholder="Stock symbol"
-            />
+          <div className="my-6">
+            <p className="text-lg font-semibold text-white mb-1">
+              {stock.companyName ? `${stock.companyName} (${stock.symbol})` : stock.symbol}
+            </p>
+            <p className="text-sm text-gray-300">
+              Current price: ${stock.price?.toFixed(2)}
+            </p>
           </div>
 
           <div>
