@@ -72,19 +72,28 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50">
       {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
       {/* Modal */}
-      <div className="relative bg-[#181A20] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+      <div
+        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
+        style={{
+          top: '112px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '28rem',
+          height: 'auto',
+          maxHeight: 'calc(100vh - 4rem - 2rem)',
+        }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Edit Stock</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="symbol" className="block text-sm font-medium text-gray-300 mb-1">

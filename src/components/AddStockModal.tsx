@@ -211,27 +211,28 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50" style={{ 
-      position: 'fixed', 
-      top: 0, 
-      left: 0, 
-      right: 0, 
-      bottom: 0,
-      width: '100vw',
-      height: '100vh'
-    }}>
+    <div className="fixed inset-0 z-50">
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
       {/* Modal */}
-      <div className="fixed bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto z-10" style={modalStyle}>
+      <div
+        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
+        style={{
+          top: '112px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '28rem',
+          height: 'auto',
+          maxHeight: 'calc(100vh - 4rem - 2rem)',
+        }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Add Stock</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
-
         <div className="space-y-4">
           {currentPrice && (
             <>
