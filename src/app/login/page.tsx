@@ -30,15 +30,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-start justify-center px-4" style={{ paddingTop: '112px' }}>
       <div className="max-w-md w-full">
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 shadow-sm">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold">
-              <span style={{ color: '#16a34a' }}>Buy↓</span>
-              <span style={{ color: '#6b21a8' }}>Sell↑</span>
-              <span className="text-gray-900">Hold</span>
-            </h1>
             <p className="text-gray-600">Sign in to your account</p>
           </div>
 
