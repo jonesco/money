@@ -36,7 +36,6 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const [highPercentage, setHighPercentage] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [modalStyle, setModalStyle] = useState({});
   const symbolInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -59,37 +58,6 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   useEffect(() => {
     if (!isOpen) {
       resetState();
-    }
-  }, [isOpen]);
-
-  // Calculate modal position and focus management
-  useEffect(() => {
-    if (isOpen) {
-      // Calculate center position based on window size
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const maxHeight = Math.min(window.innerHeight - 32, 600);
-      const maxWidth = Math.min(window.innerWidth - 32, 448);
-      
-      setModalStyle({
-        position: 'fixed',
-        top: `${centerY}px`,
-        left: `${centerX}px`,
-        transform: 'translate(-50%, -50%)',
-        maxHeight: `${maxHeight}px`,
-        minHeight: 'min-content',
-        width: `${maxWidth}px`,
-        maxWidth: '28rem'
-      });
-
-      // Focus the input after a short delay
-      if (symbolInputRef.current) {
-        const timer = setTimeout(() => {
-          symbolInputRef.current?.focus();
-        }, 50);
-        
-        return () => clearTimeout(timer);
-      }
     }
   }, [isOpen]);
 
