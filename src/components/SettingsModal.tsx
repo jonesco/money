@@ -126,13 +126,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       <div
         className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
         style={{
-          top: '50%',
+          top: '104px',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: 'translateX(-50%)',
           width: 'calc(100% - 2rem)',
           maxWidth: '28rem',
           height: 'auto',
-          maxHeight: 'calc(100vh - 4rem - 2rem)',
+          maxHeight: 'calc(100vh - 104px - 2rem)',
         }}
       >
         <div className="flex justify-between items-center mb-4">
