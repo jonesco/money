@@ -48,6 +48,19 @@ export function useUserPreferences() {
     fetchPreferences();
   }, []);
 
+  // Listen for preference updates
+  useEffect(() => {
+    const handlePreferenceUpdate = () => {
+      fetchPreferences();
+    };
+
+    window.addEventListener('preferencesUpdated', handlePreferenceUpdate);
+    
+    return () => {
+      window.removeEventListener('preferencesUpdated', handlePreferenceUpdate);
+    };
+  }, []);
+
   return {
     preferences,
     loading,

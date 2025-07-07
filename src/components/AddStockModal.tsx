@@ -40,7 +40,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const symbolInputRef = useRef<HTMLInputElement>(null);
   
   // Get user preferences for default percentages
-  const { preferences, loading: preferencesLoading, error: preferencesError } = useUserPreferences();
+  const { preferences, loading: preferencesLoading, error: preferencesError, refetch: refetchPreferences } = useUserPreferences();
 
   const resetState = () => {
     setTicker('');
@@ -60,25 +60,19 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   };
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // Refresh preferences when modal opens to ensure we have the latest
+      refetchPreferences();
+    } else {
       resetState();
     }
-  }, [isOpen]);
+  }, [isOpen, refetchPreferences]);
 
   useEffect(() => {
     if (currentPrice) {
       // Use user preferences if available, otherwise fall back to defaults
       const defaultLowPercent = preferences?.default_low_percentage ?? -10;
       const defaultHighPercent = preferences?.default_high_percentage ?? 10;
-      
-      console.log('AddStockModal: Preferences debug:', {
-        preferences,
-        preferencesLoading,
-        preferencesError,
-        defaultLowPercent,
-        defaultHighPercent,
-        currentPrice
-      });
       
       const low = currentPrice * (1 + (defaultLowPercent / 100));
       const high = currentPrice * (1 + (defaultHighPercent / 100));
@@ -87,7 +81,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
       setLowPercentage(defaultLowPercent);
       setHighPercentage(defaultHighPercent);
     }
-  }, [currentPrice, preferences, preferencesLoading, preferencesError]);
+  }, [currentPrice, preferences]);
 
   const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTicker(e.target.value.toUpperCase());

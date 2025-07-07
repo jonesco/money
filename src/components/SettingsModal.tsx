@@ -93,6 +93,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
       if (response.ok) {
         setMessage({ type: 'success', text: 'Preferences saved successfully!' });
+        // Notify other components that preferences have been updated
+        window.dispatchEvent(new CustomEvent('preferencesUpdated'));
         // Close modal after a short delay to show success message
         setTimeout(() => {
           onClose();
