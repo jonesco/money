@@ -37,7 +37,7 @@ export function useUserPreferences() {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to load preferences');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load preferences');
     } finally {
       setLoading(false);

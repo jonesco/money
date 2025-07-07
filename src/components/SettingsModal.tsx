@@ -55,7 +55,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         const errorData = await response.json();
         setMessage({ type: 'error', text: errorData.error || 'Failed to load preferences' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to load preferences' });
     } finally {
       setIsLoading(false);
@@ -103,7 +103,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         const errorData = await response.json();
         setMessage({ type: 'error', text: errorData.error || 'Failed to save preferences' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to save preferences' });
     } finally {
       setIsSaving(false);

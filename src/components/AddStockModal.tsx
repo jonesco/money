@@ -40,7 +40,7 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const symbolInputRef = useRef<HTMLInputElement>(null);
   
   // Get user preferences for default percentages
-  const { preferences, loading: preferencesLoading, error: preferencesError, refetch: refetchPreferences } = useUserPreferences();
+  const { preferences, refetch: refetchPreferences } = useUserPreferences();
 
   const resetState = () => {
     setTicker('');
