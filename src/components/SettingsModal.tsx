@@ -124,7 +124,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       
       {/* Modal - positioned as mega header */}
       <div
-        className="fixed left-1/2 z-10 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
+        className="fixed z-10 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
         style={{
           top: '72px',
           left: '0',
@@ -132,6 +132,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           width: '100%',
           height: 'auto',
           maxHeight: 'calc(100vh - 72px)',
+          position: 'fixed',
         }}
       >
         <div className="flex justify-between items-center mb-4">
