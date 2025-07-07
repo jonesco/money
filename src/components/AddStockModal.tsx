@@ -66,13 +66,17 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   }, [isOpen]);
 
   useEffect(() => {
-    if (currentPrice && preferences) {
-      const low = currentPrice * (1 + (preferences.default_low_percentage / 100));
-      const high = currentPrice * (1 + (preferences.default_high_percentage / 100));
+    if (currentPrice) {
+      // Use user preferences if available, otherwise fall back to defaults
+      const defaultLowPercent = preferences?.default_low_percentage ?? -10;
+      const defaultHighPercent = preferences?.default_high_percentage ?? 10;
+      
+      const low = currentPrice * (1 + (defaultLowPercent / 100));
+      const high = currentPrice * (1 + (defaultHighPercent / 100));
       setLowPrice(Number(low.toFixed(2)));
       setHighPrice(Number(high.toFixed(2)));
-      setLowPercentage(preferences.default_low_percentage);
-      setHighPercentage(preferences.default_high_percentage);
+      setLowPercentage(defaultLowPercent);
+      setHighPercentage(defaultHighPercent);
     }
   }, [currentPrice, preferences]);
 
