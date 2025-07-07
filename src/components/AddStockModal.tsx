@@ -63,6 +63,8 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
     if (isOpen) {
       // Refresh preferences when modal opens to ensure we have the latest
       refetchPreferences();
+      // Scroll to top to ensure modal is visible
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       resetState();
     }

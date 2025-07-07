@@ -40,6 +40,9 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       setLowPercentage(stock.lowPercentage);
       setHighPercentage(stock.highPercentage);
       setInitialPrice(stock.initialPrice);
+      
+      // Scroll to top to ensure modal is visible
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [isOpen, stock]);
 
@@ -120,6 +123,8 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
           height: 'auto',
           maxHeight: 'calc(100vh - 72px)',
           position: 'fixed',
+          transform: 'translateZ(0)',
+          willChange: 'transform',
         }}
       >
         <div className="flex justify-between items-center mb-4">
