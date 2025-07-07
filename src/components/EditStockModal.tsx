@@ -109,17 +109,16 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
     <div className="fixed inset-0 z-50">
       {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      {/* Modal */}
+      {/* Modal - positioned as mega header */}
       <div
-        className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
+        className="fixed left-1/2 z-10 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
         style={{
-          top: '104px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 2rem)',
-          maxWidth: '28rem',
+          top: '72px',
+          left: '0',
+          right: '0',
+          width: '100%',
           height: 'auto',
-          maxHeight: 'calc(100vh - 104px - 2rem)',
+          maxHeight: 'calc(100vh - 72px)',
         }}
       >
         <div className="flex justify-between items-center mb-4">
