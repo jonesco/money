@@ -25,8 +25,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   useEffect(() => {
     if (isOpen) {
       loadPreferences();
-      // Scroll to top to ensure modal is visible
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [isOpen]);
 
@@ -126,7 +124,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       
       {/* Modal - positioned as mega header */}
       <div
-        className="fixed z-10 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
+        className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
         style={{
           top: '72px',
           left: '0',

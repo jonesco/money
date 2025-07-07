@@ -40,9 +40,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       setLowPercentage(stock.lowPercentage);
       setHighPercentage(stock.highPercentage);
       setInitialPrice(stock.initialPrice);
-      
-      // Scroll to top to ensure modal is visible
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [isOpen, stock]);
 
@@ -114,7 +111,7 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       {/* Modal - positioned as mega header */}
       <div
-        className="fixed z-10 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
+        className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
         style={{
           top: '72px',
           left: '0',
@@ -123,8 +120,6 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
           height: 'auto',
           maxHeight: 'calc(100vh - 72px)',
           position: 'fixed',
-          transform: 'translateZ(0)',
-          willChange: 'transform',
         }}
       >
         <div className="flex justify-between items-center mb-4">
