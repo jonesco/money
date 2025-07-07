@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRightOnRectangleIcon, ArrowPathIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, ArrowPathIcon, PlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
 // Custom Tooltip Component
@@ -51,6 +51,11 @@ export default function Navbar() {
     window.dispatchEvent(new CustomEvent('openAddStockModal'));
   };
 
+  const handleOpenSettings = () => {
+    // Dispatch a custom event to open the settings modal
+    window.dispatchEvent(new CustomEvent('openSettingsModal'));
+  };
+
   if (loading) {
     return (
       <nav className="navbar-fixed bg-white p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
@@ -90,6 +95,14 @@ export default function Navbar() {
                   className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
                 >
                   <PlusIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+              <Tooltip text="Settings">
+                <button
+                  onClick={handleOpenSettings}
+                  className="text-black hover:text-gray-700 transition-colors duration-200 p-2"
+                >
+                  <Cog6ToothIcon className="h-6 w-6" />
                 </button>
               </Tooltip>
               <Tooltip text="Logout">

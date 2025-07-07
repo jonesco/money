@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 interface StockData {
   symbol: string;
@@ -37,6 +38,9 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const symbolInputRef = useRef<HTMLInputElement>(null);
+  
+  // Get user preferences for default percentages
+  const { preferences } = useUserPreferences();
 
   const resetState = () => {
     setTicker('');
@@ -62,15 +66,15 @@ export default function AddStockModal({ isOpen, onClose, onAdd, existingStocks }
   }, [isOpen]);
 
   useEffect(() => {
-    if (currentPrice) {
-      const low = currentPrice * 0.9;
-      const high = currentPrice * 1.1;
+    if (currentPrice && preferences) {
+      const low = currentPrice * (1 + (preferences.default_low_percentage / 100));
+      const high = currentPrice * (1 + (preferences.default_high_percentage / 100));
       setLowPrice(Number(low.toFixed(2)));
       setHighPrice(Number(high.toFixed(2)));
-      setLowPercentage(-10);
-      setHighPercentage(10);
+      setLowPercentage(preferences.default_low_percentage);
+      setHighPercentage(preferences.default_high_percentage);
     }
-  }, [currentPrice]);
+  }, [currentPrice, preferences]);
 
   const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTicker(e.target.value.toUpperCase());

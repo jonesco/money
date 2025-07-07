@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import StockCard from '@/components/StockCard';
 import AddStockModal from '@/components/AddStockModal';
+import SettingsModal from '@/components/SettingsModal';
 import { supabase } from '@/lib/supabase';
 
 interface StockData {
@@ -40,6 +41,7 @@ export default function Home() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Debug session on mount
   useEffect(() => {
@@ -61,17 +63,23 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
-  // Listen for custom event to open modal
+  // Listen for custom events to open modals
   useEffect(() => {
     if (user && !authLoading) {
-      const handleOpenModal = () => {
+      const handleOpenAddModal = () => {
         setIsModalOpen(true);
       };
 
-      window.addEventListener('openAddStockModal', handleOpenModal);
+      const handleOpenSettingsModal = () => {
+        setIsSettingsModalOpen(true);
+      };
+
+      window.addEventListener('openAddStockModal', handleOpenAddModal);
+      window.addEventListener('openSettingsModal', handleOpenSettingsModal);
       
       return () => {
-        window.removeEventListener('openAddStockModal', handleOpenModal);
+        window.removeEventListener('openAddStockModal', handleOpenAddModal);
+        window.removeEventListener('openSettingsModal', handleOpenSettingsModal);
       };
     }
   }, [user, authLoading]);
@@ -468,6 +476,11 @@ export default function Home() {
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddStock}
         existingStocks={watchlist.map(convertWatchlistToStockData)}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
     </main>
   );
