@@ -113,9 +113,9 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       <div
         className="fixed left-1/2 z-10 bg-[#181A20] border border-gray-700 rounded-lg p-6 overflow-y-auto"
         style={{
-          top: '112px',
+          top: '50%',
           left: '50%',
-          transform: 'translateX(-50%)',
+          transform: 'translate(-50%, -50%)',
           width: 'calc(100% - 2rem)',
           maxWidth: '28rem',
           height: 'auto',
