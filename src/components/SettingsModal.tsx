@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { supabase } from '@/lib/supabase';
+import ModalPortal from './ModalPortal';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -118,23 +119,17 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      {/* Dark overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-      
-      {/* Modal - positioned as mega header */}
-      <div
-        className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg"
-        style={{
-          top: '88px',
-          left: '0',
-          right: '0',
-          width: '100%',
-          height: 'auto',
-          maxHeight: 'calc(100vh - 88px)',
-          position: 'fixed',
-        }}
-      >
+    <ModalPortal>
+      <div className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg" style={{
+        top: '88px',
+        left: 0,
+        right: 0,
+        width: '100vw',
+        maxWidth: '100vw',
+        height: 'auto',
+        maxHeight: 'calc(100vh - 88px)',
+        position: 'fixed',
+      }}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Settings</h2>
           <button onClick={handleClose} className="text-gray-400 hover:text-white">
@@ -225,6 +220,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         )}
       </div>
-    </div>
+      {/* Dark overlay */}
+      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+    </ModalPortal>
   );
 } 
