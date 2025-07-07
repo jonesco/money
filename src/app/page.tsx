@@ -7,8 +7,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import StockCard from '@/components/StockCard';
-import AddStockModal from '@/components/AddStockModal';
-import SettingsModal from '@/components/SettingsModal';
 import { supabase } from '@/lib/supabase';
 
 interface StockData {
@@ -41,7 +39,6 @@ export default function Home() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Debug session on mount
   useEffect(() => {
@@ -63,23 +60,17 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
-  // Listen for custom events to open modals
+  // Listen for addStock events from navbar
   useEffect(() => {
     if (user && !authLoading) {
-      const handleOpenAddModal = () => {
-        setIsModalOpen(true);
+      const handleAddStockEvent = (event: CustomEvent) => {
+        handleAddStock(event.detail);
       };
 
-      const handleOpenSettingsModal = () => {
-        setIsSettingsModalOpen(true);
-      };
-
-      window.addEventListener('openAddStockModal', handleOpenAddModal);
-      window.addEventListener('openSettingsModal', handleOpenSettingsModal);
+      window.addEventListener('addStock', handleAddStockEvent as EventListener);
       
       return () => {
-        window.removeEventListener('openAddStockModal', handleOpenAddModal);
-        window.removeEventListener('openSettingsModal', handleOpenSettingsModal);
+        window.removeEventListener('addStock', handleAddStockEvent as EventListener);
       };
     }
   }, [user, authLoading]);
@@ -471,17 +462,7 @@ export default function Home() {
         </div>
       </div>
 
-      <AddStockModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAdd={handleAddStock}
-        existingStocks={watchlist.map(convertWatchlistToStockData)}
-      />
-
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
+      {/* Modals are now rendered in the Navbar component */}
     </main>
   );
 }

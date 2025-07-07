@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRightOnRectangleIcon, ArrowPathIcon, PlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AddStockModal from './AddStockModal';
+import SettingsModal from './SettingsModal';
 
 // Custom Tooltip Component
 const Tooltip = ({ children, text, position = 'bottom' }: { children: React.ReactNode; text: string; position?: 'top' | 'bottom' }) => {
@@ -37,6 +39,8 @@ const Tooltip = ({ children, text, position = 'bottom' }: { children: React.Reac
 
 export default function Navbar() {
   const { user, signOut, loading } = useAuth();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -47,14 +51,26 @@ export default function Navbar() {
   };
 
   const handleAddStock = () => {
-    // Dispatch a custom event to open the modal without refreshing
-    window.dispatchEvent(new CustomEvent('openAddStockModal'));
+    setIsAddModalOpen(true);
   };
 
   const handleOpenSettings = () => {
-    // Dispatch a custom event to open the settings modal
-    window.dispatchEvent(new CustomEvent('openSettingsModal'));
+    setIsSettingsModalOpen(true);
   };
+
+  // Listen for custom events from other components
+  useEffect(() => {
+    const handleOpenAddModal = () => setIsAddModalOpen(true);
+    const handleOpenSettingsModal = () => setIsSettingsModalOpen(true);
+
+    window.addEventListener('openAddStockModal', handleOpenAddModal);
+    window.addEventListener('openSettingsModal', handleOpenSettingsModal);
+    
+    return () => {
+      window.removeEventListener('openAddStockModal', handleOpenAddModal);
+      window.removeEventListener('openSettingsModal', handleOpenSettingsModal);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -124,6 +140,23 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      
+      {/* Modals rendered as part of the navbar */}
+      <AddStockModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={(stockData) => {
+          // Dispatch event for the main page to handle
+          window.dispatchEvent(new CustomEvent('addStock', { detail: stockData }));
+          setIsAddModalOpen(false);
+        }}
+        existingStocks={[]} // This will be updated by the main page
+      />
+      
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </nav>
   );
 }
