@@ -19,6 +19,7 @@ interface StockData {
   lowPercentage: number;
   highPercentage: number;
   initialPrice?: number;
+  targetPrice?: number;
 }
 
 interface StockCardProps extends StockData {
@@ -40,6 +41,7 @@ export default function StockCard({
   lowPercentage,
   highPercentage,
   initialPrice,
+  targetPrice,
   onUpdate,
   onDelete,
 }: StockCardProps) {
@@ -191,10 +193,7 @@ export default function StockCard({
             </button>
             <button
               onClick={handleDelete}
-              className="text-gray-600 hover:text-purple-600"
-              style={{ '--tw-hover-opacity': '1' } as React.CSSProperties}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#6b21a8'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
+              className="bg-[#6b21a8] text-white px-3 py-2 rounded hover:bg-purple-800 transition-colors duration-200"
             >
               <TrashIcon className="w-5 h-5" />
             </button>
@@ -262,6 +261,7 @@ export default function StockCard({
           lowPercentage,
           highPercentage,
           initialPrice: initialPrice || price,
+          targetPrice: targetPrice || initialPrice || price,
         }}
       />
 

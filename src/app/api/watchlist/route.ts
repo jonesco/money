@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   console.log('POST: Request body:', body);
   
-  const { stockSymbol, upperThreshold, lowerThreshold, currentPrice, initialPrice } = body;
+  const { stockSymbol, upperThreshold, lowerThreshold, currentPrice, initialPrice, targetPrice } = body;
   if (!stockSymbol || upperThreshold === undefined || lowerThreshold === undefined) {
     console.log('POST: Missing required fields');
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -161,6 +161,7 @@ export async function POST(request: NextRequest) {
         lower_threshold: lowerThreshold,
         current_price: currentPrice || 0,
         initial_price: initialPrice || currentPrice || 0,
+        target_price: targetPrice || initialPrice || currentPrice || 0,
       }])
       .select()
       .single();
@@ -199,7 +200,7 @@ export async function PUT(request: NextRequest) {
   const supabase = createSupabaseClientWithAuth(auth.token);
   const body = await request.json();
   console.log('PUT: Request body:', body);
-  const { id, upperThreshold, lowerThreshold, currentPrice, initialPrice } = body;
+  const { id, upperThreshold, lowerThreshold, currentPrice, initialPrice, targetPrice } = body;
   if (!id) {
     return NextResponse.json({ error: 'Stock ID is required' }, { status: 400 });
   }
@@ -233,6 +234,7 @@ export async function PUT(request: NextRequest) {
       lower_threshold: lowerThreshold,
       current_price: currentPrice,
       initial_price: initialPrice,
+      target_price: targetPrice,
     };
     console.log('PUT: Update data:', updateData);
     

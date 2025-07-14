@@ -18,6 +18,7 @@ interface StockData {
   lowPercentage: number;
   highPercentage: number;
   initialPrice: number;
+  targetPrice: number;
 }
 
 interface EditStockModalProps {
@@ -28,11 +29,15 @@ interface EditStockModalProps {
 }
 
 export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: EditStockModalProps) {
-  const [lowPrice, setLowPrice] = useState(stock.lowPrice);
-  const [highPrice, setHighPrice] = useState(stock.highPrice);
-  const [lowPercentage, setLowPercentage] = useState(stock.lowPercentage);
-  const [highPercentage, setHighPercentage] = useState(stock.highPercentage);
-  const [initialPrice, setInitialPrice] = useState(stock.initialPrice);
+  // Use string state for input fields to allow free typing
+  const [lowPriceInput, setLowPriceInput] = useState(stock.lowPrice.toFixed(2));
+  const [highPriceInput, setHighPriceInput] = useState(stock.highPrice.toFixed(2));
+  const [targetPriceInput, setTargetPriceInput] = useState((stock.targetPrice || stock.initialPrice).toFixed(2));
+  const [lowPercentage, setLowPercentage] = useState<number | null>(stock.lowPercentage);
+  const [highPercentage, setHighPercentage] = useState<number | null>(stock.highPercentage);
+  const [lowPrice, setLowPrice] = useState<number | null>(stock.lowPrice);
+  const [highPrice, setHighPrice] = useState<number | null>(stock.highPrice);
+  const [targetPrice, setTargetPrice] = useState<number | null>(stock.targetPrice || stock.initialPrice);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,67 +45,114 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
       setHighPrice(stock.highPrice);
       setLowPercentage(stock.lowPercentage);
       setHighPercentage(stock.highPercentage);
-      setInitialPrice(stock.initialPrice);
+      setTargetPrice(stock.targetPrice || stock.initialPrice);
+      setLowPriceInput(stock.lowPrice.toFixed(2));
+      setHighPriceInput(stock.highPrice.toFixed(2));
+      setTargetPriceInput((stock.targetPrice || stock.initialPrice).toFixed(2));
     }
   }, [isOpen, stock]);
 
   const handleLowPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLowPriceInput(e.target.value);
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && initialPrice) {
+    if (!isNaN(value) && targetPrice) {
       setLowPrice(value);
-      const percentage = ((value - initialPrice) / initialPrice) * 100;
+      const percentage = ((value - targetPrice) / targetPrice) * 100;
       setLowPercentage(Number(percentage.toFixed(2)));
+    } else if (e.target.value === '') {
+      setLowPrice(null);
+      setLowPercentage(null);
     }
+  };
+  const handleLowPriceBlur = () => {
+    if (lowPrice != null) setLowPriceInput(lowPrice.toFixed(2));
   };
 
   const handleHighPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHighPriceInput(e.target.value);
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && initialPrice) {
+    if (!isNaN(value) && targetPrice) {
       setHighPrice(value);
-      const percentage = ((value - initialPrice) / initialPrice) * 100;
+      const percentage = ((value - targetPrice) / targetPrice) * 100;
       setHighPercentage(Number(percentage.toFixed(2)));
+    } else if (e.target.value === '') {
+      setHighPrice(null);
+      setHighPercentage(null);
     }
+  };
+  const handleHighPriceBlur = () => {
+    if (highPrice != null) setHighPriceInput(highPrice.toFixed(2));
+  };
+
+  const handleTargetPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTargetPriceInput(e.target.value);
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      setTargetPrice(value);
+      // Recalculate percentages based on new target price
+      if (lowPrice) {
+        const lowPercentage = ((lowPrice - value) / value) * 100;
+        setLowPercentage(Number(lowPercentage.toFixed(2)));
+      }
+      if (highPrice) {
+        const highPercentage = ((highPrice - value) / value) * 100;
+        setHighPercentage(Number(highPercentage.toFixed(2)));
+      }
+    } else if (e.target.value === '') {
+      setTargetPrice(null);
+      setLowPercentage(null);
+      setHighPercentage(null);
+    }
+  };
+  const handleTargetPriceBlur = () => {
+    if (targetPrice != null) setTargetPriceInput(targetPrice.toFixed(2));
   };
 
   const handleLowPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && initialPrice) {
-      setLowPercentage(value);
-      const price = initialPrice * (1 + value / 100);
-      setLowPrice(Number(price.toFixed(2)));
+    if (!isNaN(value) && targetPrice) {
+      setLowPercentage(Number(value.toFixed(2)));
+      const price = targetPrice * (1 + value / 100);
+      setLowPrice(price);
+      setLowPriceInput(price.toFixed(2));
+    } else if (e.target.value === '') {
+      setLowPercentage(null);
+      setLowPrice(null);
+      setLowPriceInput('');
     }
   };
 
   const handleHighPercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && initialPrice) {
-      setHighPercentage(value);
-      const price = initialPrice * (1 + value / 100);
-      setHighPrice(Number(price.toFixed(2)));
+    if (!isNaN(value) && targetPrice) {
+      setHighPercentage(Number(value.toFixed(2)));
+      const price = targetPrice * (1 + value / 100);
+      setHighPrice(price);
+      setHighPriceInput(price.toFixed(2));
+    } else if (e.target.value === '') {
+      setHighPercentage(null);
+      setHighPrice(null);
+      setHighPriceInput('');
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (lowPrice >= highPrice) {
-      return;
-    }
-
+    if (!targetPrice || !lowPrice || !highPrice) return;
+    if (lowPrice >= highPrice) return;
     onUpdate({
       ...stock,
       id: stock.id,
       lowPrice,
       highPrice,
-      lowPercentage,
-      highPercentage,
-      initialPrice,
+      lowPercentage: lowPercentage || 0,
+      highPercentage: highPercentage || 0,
+      targetPrice: targetPrice || 0,
       change: stock.change,
       changePercent: stock.changePercent,
       volume: stock.volume,
       latestTradingDay: stock.latestTradingDay,
     });
-
     onClose();
   };
 
@@ -109,13 +161,13 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
   return (
     <ModalPortal>
       <div className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg" style={{
-        top: '88px',
+        top: '64px',
         left: 0,
         right: 0,
         width: '100vw',
         maxWidth: '100vw',
         height: 'auto',
-        maxHeight: 'calc(100vh - 88px)',
+        maxHeight: 'calc(100vh - 64px)',
         position: 'fixed',
       }}>
         <div className="flex justify-between items-center mb-4">
@@ -141,14 +193,17 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
             <input
               type="number"
               id="targetPrice"
-              value={initialPrice}
-              onChange={(e) => setInitialPrice(Number(e.target.value))}
+              value={targetPriceInput}
+              onChange={handleTargetPriceChange}
+              onBlur={handleTargetPriceBlur}
               className="w-full px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
               placeholder="Enter target price"
               step="0.01"
               required
             />
           </div>
+
+          {/* Remove the Initial Price input from the form */}
 
           <div>
             <label htmlFor="lowPrice" className="block text-sm font-medium text-gray-300 mb-1">
@@ -158,8 +213,9 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
               <input
                 type="number"
                 id="lowPrice"
-                value={lowPrice}
+                value={lowPriceInput}
                 onChange={handleLowPriceChange}
+                onBlur={handleLowPriceBlur}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="Enter low price"
                 step="0.01"
@@ -167,7 +223,7 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
               />
               <input
                 type="number"
-                value={lowPercentage}
+                value={lowPercentage != null ? lowPercentage : ''}
                 onChange={handleLowPercentageChange}
                 className="w-24 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="%"
@@ -185,8 +241,9 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
               <input
                 type="number"
                 id="highPrice"
-                value={highPrice}
+                value={highPriceInput}
                 onChange={handleHighPriceChange}
+                onBlur={handleHighPriceBlur}
                 className="flex-1 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="Enter high price"
                 step="0.01"
@@ -194,7 +251,7 @@ export default function EditStockModal({ isOpen, onClose, onUpdate, stock }: Edi
               />
               <input
                 type="number"
-                value={highPercentage}
+                value={highPercentage != null ? highPercentage : ''}
                 onChange={handleHighPercentageChange}
                 className="w-24 px-4 py-2 bg-[#1E2026] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white placeholder-gray-400"
                 placeholder="%"

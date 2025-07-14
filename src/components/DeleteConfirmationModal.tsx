@@ -14,13 +14,13 @@ export default function DeleteConfirmationModal({ isOpen, onClose, onConfirm, sy
   return (
     <ModalPortal>
       <div className="fixed z-50 bg-[#181A20] border-b border-gray-700 p-6 overflow-y-auto shadow-lg" style={{
-        top: '88px',
+        top: '64px',
         left: 0,
         right: 0,
         width: '100vw',
         maxWidth: '100vw',
         height: 'auto',
-        maxHeight: 'calc(100vh - 88px)',
+        maxHeight: 'calc(100vh - 64px)',
         position: 'fixed',
       }}>
         <div className="flex justify-between items-center mb-4">
@@ -46,7 +46,7 @@ export default function DeleteConfirmationModal({ isOpen, onClose, onConfirm, sy
               onConfirm();
               onClose();
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
+            className="px-4 py-2 bg-[#6b21a8] text-white rounded-lg hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors duration-200"
           >
             Delete
           </button>

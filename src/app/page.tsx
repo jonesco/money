@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -22,6 +22,7 @@ interface StockData {
   lowPercentage: number;
   highPercentage: number;
   initialPrice?: number;
+  targetPrice?: number;
 }
 
 interface WatchlistItem {
@@ -31,6 +32,7 @@ interface WatchlistItem {
   lower_threshold: number;
   upper_threshold: number;
   initial_price: number;
+  target_price: number;
   updated_at: string;
 }
 
@@ -38,7 +40,9 @@ export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Add local state for live prices
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
 
   // Debug session on mount
   useEffect(() => {
@@ -60,7 +64,7 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
-  // Listen for addStock events from navbar
+  // Listen for addStock events from navbar and update existing stocks
   useEffect(() => {
     if (user && !authLoading) {
       const handleAddStockEvent = (event: CustomEvent) => {
@@ -74,6 +78,8 @@ export default function Home() {
       };
     }
   }, [user, authLoading]);
+
+
 
   // Fetch user's watchlist from database
   const { data: watchlist = [], isLoading: watchlistLoading } = useQuery({
@@ -141,6 +147,41 @@ export default function Home() {
     retryDelay: 1000,
   });
 
+  // Fetch live prices for all stocks in the watchlist after initial load
+  useEffect(() => {
+    if (watchlist && watchlist.length > 0) {
+      let isMounted = true;
+      const fetchPrices = async () => {
+        const updates: Record<string, number> = {};
+        await Promise.all(
+          watchlist.map(async (item: any) => {
+            try {
+              const res = await axios.get(`/api/stocks?symbol=${item.stock_symbol}`);
+              if (res.data && res.data.price) {
+                updates[item.id] = res.data.price;
+              }
+            } catch {
+              // Ignore errors, fallback to DB price
+            }
+          })
+        );
+        if (isMounted) setLivePrices(updates);
+      };
+      fetchPrices();
+      return () => { isMounted = false; };
+    }
+  }, [watchlist]);
+
+  // Update existing stocks in navbar when watchlist changes
+  useEffect(() => {
+    if (watchlist && watchlist.length > 0) {
+      const existingStocks = watchlist.map((item: WatchlistItem) => ({ symbol: item.stock_symbol }));
+      window.dispatchEvent(new CustomEvent('updateExistingStocks', { detail: existingStocks }));
+    } else {
+      window.dispatchEvent(new CustomEvent('updateExistingStocks', { detail: [] }));
+    }
+  }, [watchlist]);
+
   // Use watchlist directly without filtering
   const filteredWatchlist = watchlist;
 
@@ -183,6 +224,7 @@ export default function Home() {
         lowerThreshold: stockData.lowPrice,
         currentPrice: stockData.price,
         initialPrice: stockData.initialPrice || stockData.price,
+        targetPrice: stockData.targetPrice || stockData.initialPrice || stockData.price,
       };
       
       console.log('Request body:', requestBody);
@@ -295,6 +337,7 @@ export default function Home() {
         lowerThreshold: stockData.lowPrice,
         currentPrice: stockData.price,
         initialPrice: stockData.initialPrice || stockData.price,
+        targetPrice: stockData.targetPrice || stockData.initialPrice || stockData.price,
       };
       console.log('Update: Request body:', requestBody);
       
@@ -388,7 +431,6 @@ export default function Home() {
     console.log('Adding stock:', stockData);
     console.log('User ID:', user?.id);
     addStockMutation.mutate(stockData);
-    setIsModalOpen(false);
   };
 
   const handleUpdateStock = (updatedStock: StockData) => {
@@ -404,11 +446,12 @@ export default function Home() {
     const initialPrice = item.initial_price || item.current_price;
     const lowPercentage = initialPrice ? ((item.lower_threshold - initialPrice) / initialPrice) * 100 : 0;
     const highPercentage = initialPrice ? ((item.upper_threshold - initialPrice) / initialPrice) * 100 : 0;
-    
+    // Use live price if available
+    const price = livePrices[item.id] ?? item.current_price;
     return {
       id: item.id,
       symbol: item.stock_symbol,
-      price: item.current_price,
+      price: price,
       change: 0, // Will be updated when we fetch current price
       changePercent: '0%',
       volume: 0,
@@ -418,6 +461,7 @@ export default function Home() {
       lowPercentage: Number(lowPercentage.toFixed(2)),
       highPercentage: Number(highPercentage.toFixed(2)),
       initialPrice: initialPrice,
+      targetPrice: item.target_price || initialPrice,
     };
   };
 
@@ -446,6 +490,39 @@ export default function Home() {
         )}
 
         <div className="grid grid-cols-1 gap-4 mb-14">
+          {filteredWatchlist.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-black">
+              {/* Simple illustration - only green, grey, purple */}
+              <svg width="96" height="48" viewBox="0 0 96 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
+                <rect x="10" y="24" width="16" height="20" rx="3" fill="#16a34a"/>
+                <rect x="40" y="12" width="16" height="32" rx="3" fill="#9ca3af"/>
+                <rect x="70" y="4" width="16" height="40" rx="3" fill="#9333ea"/>
+                <circle cx="18" cy="22" r="4" fill="#16a34a"/>
+                <circle cx="48" cy="10" r="4" fill="#9ca3af"/>
+                <circle cx="78" cy="2" r="4" fill="#9333ea"/>
+                <polyline points="18,22 48,10 78,2" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <h2 className="text-2xl font-bold mb-4">Track stocks with BuySellHold in 3 steps:</h2>
+              <ol className="list-decimal list-inside text-left max-w-md mx-auto mb-6 space-y-2">
+                <li><b>Add a stock</b> — Enter a ticker to fetch its price.</li>
+                <li><b>Set your range</b> — Pick a buy (low) and sell (high) price.</li>
+                <li><span className="font-bold">Watch the color</span> —
+                  <ul className="list-none ml-0 mt-2 space-y-1">
+                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#16a34a" /></svg></span> <b>Buy:</b> price is low</li>
+                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#6b21a8" /></svg></span> <b>Sell:</b> price is high</li>
+                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#9ca3af" /></svg></span> <b>Hold:</b> price is in between</li>
+                  </ul>
+                </li>
+              </ol>
+              <p className="mb-2">Edit anytime. Click a stock to view it on Yahoo Finance.</p>
+              <button
+                className="mt-2 px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                onClick={() => window.dispatchEvent(new Event('openAddStockModal'))}
+              >
+                Add a stock
+              </button>
+            </div>
+          )}
           {filteredWatchlist.map((item: WatchlistItem) => (
             <StockCard
               key={item.id}
@@ -454,11 +531,6 @@ export default function Home() {
               onDelete={() => handleDeleteStock(item.id)}
             />
           ))}
-          {filteredWatchlist.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-600">No stocks in your watchlist yet. Add your first stock to get started!</p>
-            </div>
-          )}
         </div>
       </div>
 
