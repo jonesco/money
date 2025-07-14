@@ -193,7 +193,7 @@ export default function StockCard({
             </button>
             <button
               onClick={handleDelete}
-              className="bg-[#6b21a8] text-white px-3 py-2 rounded hover:bg-purple-800 transition-colors duration-200"
+              className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
             >
               <TrashIcon className="w-5 h-5" />
             </button>
