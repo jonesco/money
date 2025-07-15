@@ -54,6 +54,26 @@ export default function Home() {
     }
     return 'alphabetical';
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.sort-dropdown-container')) {
+        setIsSortDropdownOpen(false);
+      }
+    };
+
+    if (isSortDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSortDropdownOpen]);
 
   // Save sort preference to localStorage whenever it changes
   useEffect(() => {
@@ -189,8 +209,17 @@ export default function Home() {
     }
   }, [watchlist]);
 
-  // Use watchlist directly without filtering
-  const filteredWatchlist = watchlist;
+  // Filter watchlist based on search query
+  const filteredWatchlist = React.useMemo(() => {
+    if (!searchQuery.trim()) {
+      return watchlist;
+    }
+    
+    const query = searchQuery.trim().toUpperCase();
+    return watchlist.filter((item: WatchlistItem) => 
+      item.stock_symbol.toUpperCase().startsWith(query)
+    );
+  }, [watchlist, searchQuery]);
 
   // Sort the watchlist based on the selected option
   const sortedWatchlist = React.useMemo(() => {
@@ -491,6 +520,7 @@ export default function Home() {
     const highPercentage = initialPrice ? ((item.upper_threshold - initialPrice) / initialPrice) * 100 : 0;
     // Use live price if available
     const price = livePrices[item.id] ?? item.current_price;
+    
     return {
       id: item.id,
       symbol: item.stock_symbol,
@@ -533,62 +563,138 @@ export default function Home() {
         )}
 
         <div className="grid grid-cols-1 gap-4 mb-14">
-          {/* Sort dropdown */}
-          {filteredWatchlist.length > 0 && (
-            <div className="flex justify-start mb-4">
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-gray-700">Sort:</label>
+          {/* Sort and Search controls */}
+          {watchlist.length > 0 && (
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 min-w-0">
                 <div className="relative">
-                  <select
-                    value={sortOption}
-                    onChange={(e) => setSortOption(e.target.value as 'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar')}
-                    className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="alphabetical">Alphabetical</option>
-                    <option value="changeFromTargetPercent">Change from Target (%)</option>
-                    <option value="changeFromTargetDollar">Change from Target ($)</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Filter by symbol..."
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
+              </div>
+              
+              {/* Sort dropdown */}
+              <div className="relative sort-dropdown-container flex-shrink-0">
+                <button
+                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                  className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  title="Sort options"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                  <span className="hidden sm:inline">Sort</span>
+                </button>
+                
+                {isSortDropdownOpen && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setSortOption('alphabetical');
+                          setIsSortDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                          sortOption === 'alphabetical' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        }`}
+                      >
+                        Alphabetical
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortOption('changeFromTargetPercent');
+                          setIsSortDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                          sortOption === 'changeFromTargetPercent' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        }`}
+                      >
+                        Change from Target (%)
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortOption('changeFromTargetDollar');
+                          setIsSortDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                          sortOption === 'changeFromTargetDollar' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        }`}
+                      >
+                        Change from Target ($)
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {filteredWatchlist.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center text-black">
-              {/* Simple illustration - only green, grey, purple */}
-              <svg width="96" height="48" viewBox="0 0 96 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
-                <rect x="10" y="24" width="16" height="20" rx="3" fill="#16a34a"/>
-                <rect x="40" y="12" width="16" height="32" rx="3" fill="#9ca3af"/>
-                <rect x="70" y="4" width="16" height="40" rx="3" fill="#9333ea"/>
-                <circle cx="18" cy="22" r="4" fill="#16a34a"/>
-                <circle cx="48" cy="10" r="4" fill="#9ca3af"/>
-                <circle cx="78" cy="2" r="4" fill="#9333ea"/>
-                <polyline points="18,22 48,10 78,2" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <h2 className="text-2xl font-bold mb-4">Track stocks with BuySellHold in 3 steps:</h2>
-              <ol className="list-decimal list-inside text-left max-w-md mx-auto mb-6 space-y-2">
-                <li><b>Add a stock</b> — Enter a ticker to fetch its price.</li>
-                <li><b>Set your range</b> — Pick a buy (low) and sell (high) price.</li>
-                <li><span className="font-bold">Watch the color</span> —
-                  <ul className="list-none ml-0 mt-2 space-y-1">
-                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#16a34a" /></svg></span> <b>Buy:</b> price is low</li>
-                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#6b21a8" /></svg></span> <b>Sell:</b> price is high</li>
-                    <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#9ca3af" /></svg></span> <b>Hold:</b> price is in between</li>
-                  </ul>
-                </li>
-              </ol>
-              <p className="mb-2">Edit anytime. Click a stock to view it on Yahoo Finance.</p>
-              <button
-                className="mt-2 px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                onClick={() => window.dispatchEvent(new Event('openAddStockModal'))}
-              >
-                Add a stock
-              </button>
+              {searchQuery.trim() ? (
+                // No search results
+                <div>
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 text-gray-400">
+                    <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <h2 className="text-xl font-semibold mb-2 text-gray-600">No results found</h2>
+                  <p className="text-gray-500 mb-4">No stocks match "{searchQuery}"</p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              ) : (
+                // Empty watchlist state
+                <>
+                  {/* Simple illustration - only green, grey, purple */}
+                  <svg width="96" height="48" viewBox="0 0 96 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
+                    <rect x="10" y="24" width="16" height="20" rx="3" fill="#16a34a"/>
+                    <rect x="40" y="12" width="16" height="32" rx="3" fill="#9ca3af"/>
+                    <rect x="70" y="4" width="16" height="40" rx="3" fill="#9333ea"/>
+                    <circle cx="18" cy="22" r="4" fill="#16a34a"/>
+                    <circle cx="48" cy="10" r="4" fill="#9ca3af"/>
+                    <circle cx="78" cy="2" r="4" fill="#9333ea"/>
+                    <polyline points="18,22 48,10 78,2" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <h2 className="text-2xl font-bold mb-4">Track stocks with BuySellHold in 3 steps:</h2>
+                  <ol className="list-decimal list-inside text-left max-w-md mx-auto mb-6 space-y-2">
+                    <li><b>Add a stock</b> — Enter a ticker to fetch its price.</li>
+                    <li><b>Set your range</b> — Pick a buy (low) and sell (high) price.</li>
+                    <li><span className="font-bold">Watch the color</span> —
+                      <ul className="list-none ml-0 mt-2 space-y-1">
+                        <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#16a34a" /></svg></span> <b>Buy:</b> price is low</li>
+                        <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#6b21a8" /></svg></span> <b>Sell:</b> price is high</li>
+                        <li> • <span className="inline-block align-middle" style={{ verticalAlign: 'middle' }}><svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline' }}><circle cx="8" cy="8" r="8" fill="#9ca3af" /></svg></span> <b>Hold:</b> price is in between</li>
+                      </ul>
+                    </li>
+                  </ol>
+                  <p className="mb-2">Edit anytime. Click a stock to view it on Yahoo Finance.</p>
+                  <button
+                    className="mt-2 px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                    onClick={() => window.dispatchEvent(new Event('openAddStockModal'))}
+                  >
+                    Add a stock
+                  </button>
+                </>
+              )}
             </div>
           )}
           {sortedWatchlist.map((item: WatchlistItem) => (

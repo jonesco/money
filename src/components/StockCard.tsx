@@ -105,8 +105,8 @@ export default function StockCard({
     setIsDeleteModalOpen(true);
   };
 
-  // Calculate slider position (0-100%)
-  const sliderPercent = Math.max(0, Math.min(100, (((initialPrice || price) - lowPrice) / (highPrice - lowPrice)) * 100));
+  // Calculate slider position (0-100%) based on current price
+  const sliderPercent = Math.max(0, Math.min(100, ((price - lowPrice) / (highPrice - lowPrice)) * 100));
 
   return (
     <>
