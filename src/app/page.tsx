@@ -574,7 +574,8 @@ export default function Home() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Filter by symbol..."
-                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-base font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                    style={{ fontSize: '16px' }}
                   />
                   {searchQuery && (
                     <button
