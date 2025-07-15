@@ -102,6 +102,7 @@ export default function Home() {
         window.removeEventListener('addStock', handleAddStockEvent as EventListener);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
 
 
@@ -653,7 +654,7 @@ export default function Home() {
                     <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <h2 className="text-xl font-semibold mb-2 text-gray-600">No results found</h2>
-                  <p className="text-gray-500 mb-4">No stocks match "{searchQuery}"</p>
+                  <p className="text-gray-500 mb-4">No stocks match &quot;{searchQuery}&quot;</p>
                   <button
                     onClick={() => setSearchQuery('')}
                     className="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
