@@ -112,22 +112,22 @@ export default function Navbar() {
                   <UserCircleIcon className="h-6 w-6" />
                 </button>
                 {isOverflowOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-[#181A20] rounded-md shadow-lg border border-gray-700 z-50">
                     {/* User info */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <span className="block text-sm font-medium text-gray-900 truncate">
+                    <div className="px-4 py-3 border-b border-gray-700">
+                      <span className="block text-sm font-medium text-white truncate">
                         {user.user_metadata?.name || user.email}
                       </span>
                     </div>
                     <button
                       onClick={handleOpenSettings}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#1E2026] transition-colors duration-200"
                     >
                       Settings
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#1E2026] transition-colors duration-200"
                     >
                       Logout
                     </button>

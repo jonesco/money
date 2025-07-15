@@ -602,15 +602,15 @@ export default function Home() {
                 </button>
                 
                 {isSortDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                  <div className="absolute right-0 mt-1 w-48 bg-[#181A20] border border-gray-700 rounded-lg shadow-lg z-10">
                     <div className="py-1">
                       <button
                         onClick={() => {
                           setSortOption('alphabetical');
                           setIsSortDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                          sortOption === 'alphabetical' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
+                          sortOption === 'alphabetical' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
                         }`}
                       >
                         Alphabetical
@@ -620,8 +620,8 @@ export default function Home() {
                           setSortOption('changeFromTargetPercent');
                           setIsSortDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                          sortOption === 'changeFromTargetPercent' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
+                          sortOption === 'changeFromTargetPercent' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
                         }`}
                       >
                         Change from Target (%)
@@ -631,8 +631,8 @@ export default function Home() {
                           setSortOption('changeFromTargetDollar');
                           setIsSortDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                          sortOption === 'changeFromTargetDollar' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
+                          sortOption === 'changeFromTargetDollar' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
                         }`}
                       >
                         Change from Target ($)
