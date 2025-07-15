@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import StockCard from '@/components/StockCard';
 import { supabase } from '@/lib/supabase';
+import React from 'react';
 
 interface StockData {
   id?: string;
@@ -42,20 +43,8 @@ export default function Home() {
   const queryClient = useQueryClient();
 
   // Add local state for live prices
-  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
-
-  // Debug session on mount
-  useEffect(() => {
-    if (user) {
-      console.log('Home: User authenticated:', user.id);
-      supabase.auth.getSession().then(({ data: { session }, error }) => {
-        console.log('Home: Session check:', session ? 'Valid' : 'Invalid', error);
-        if (session?.access_token) {
-          console.log('Home: Token length:', session.access_token.length);
-        }
-      });
-    }
-  }, [user]);
+  const [livePrices, setLivePrices] = useState<{ [key: string]: number }>({});
+  const [sortOption, setSortOption] = useState<'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar'>('alphabetical');
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -165,7 +154,9 @@ export default function Home() {
             }
           })
         );
-        if (isMounted) setLivePrices(updates);
+        if (isMounted) {
+          setLivePrices(updates);
+        }
       };
       fetchPrices();
       return () => { isMounted = false; };
@@ -184,6 +175,42 @@ export default function Home() {
 
   // Use watchlist directly without filtering
   const filteredWatchlist = watchlist;
+
+  // Sort the watchlist based on the selected option
+  const sortedWatchlist = React.useMemo(() => {
+    if (sortOption === 'alphabetical') {
+      return [...filteredWatchlist].sort((a, b) => a.stock_symbol.localeCompare(b.stock_symbol));
+    } else if (sortOption === 'changeFromTargetPercent') {
+      const sorted = [...filteredWatchlist].sort((a, b) => {
+        // Use the same calculation as StockCard component
+        const aInitialPrice = a.initial_price || a.current_price;
+        const bInitialPrice = b.initial_price || b.current_price;
+        const aCurrentPrice = livePrices[a.id] ?? a.current_price;
+        const bCurrentPrice = livePrices[b.id] ?? b.current_price;
+        
+        const aPercent = aInitialPrice > 0 ? ((aCurrentPrice - aInitialPrice) / aInitialPrice) * 100 : 0;
+        const bPercent = bInitialPrice > 0 ? ((bCurrentPrice - bInitialPrice) / bInitialPrice) * 100 : 0;
+        
+        return bPercent - aPercent; // Sort by highest percentage change first (positive to negative)
+      });
+      
+      return sorted;
+    } else if (sortOption === 'changeFromTargetDollar') {
+      return [...filteredWatchlist].sort((a, b) => {
+        // Use the same calculation as StockCard component
+        const aInitialPrice = a.initial_price || a.current_price;
+        const bInitialPrice = b.initial_price || b.current_price;
+        const aCurrentPrice = livePrices[a.id] ?? a.current_price;
+        const bCurrentPrice = livePrices[b.id] ?? b.current_price;
+        
+        const aDollar = aCurrentPrice - aInitialPrice;
+        const bDollar = bCurrentPrice - bInitialPrice;
+        
+        return bDollar - aDollar; // Sort by highest dollar change first (positive to negative)
+      });
+    }
+    return filteredWatchlist;
+  }, [filteredWatchlist, sortOption, livePrices]);
 
   // Add stock to watchlist mutation
   const addStockMutation = useMutation({
@@ -490,6 +517,28 @@ export default function Home() {
         )}
 
         <div className="grid grid-cols-1 gap-4 mb-14">
+          {/* Sort dropdown */}
+          {filteredWatchlist.length > 0 && (
+            <div className="flex justify-end mb-4">
+              <div className="relative">
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value as 'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar')}
+                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="alphabetical">Sort: Alphabetical</option>
+                  <option value="changeFromTargetPercent">Sort: Change from Target (%)</option>
+                  <option value="changeFromTargetDollar">Sort: Change from Target ($)</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          )}
+
           {filteredWatchlist.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center text-black">
               {/* Simple illustration - only green, grey, purple */}
@@ -523,7 +572,7 @@ export default function Home() {
               </button>
             </div>
           )}
-          {filteredWatchlist.map((item: WatchlistItem) => (
+          {sortedWatchlist.map((item: WatchlistItem) => (
             <StockCard
               key={item.id}
               {...convertWatchlistToStockData(item)}
