@@ -44,7 +44,23 @@ export default function Home() {
 
   // Add local state for live prices
   const [livePrices, setLivePrices] = useState<{ [key: string]: number }>({});
-  const [sortOption, setSortOption] = useState<'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar'>('alphabetical');
+  const [sortOption, setSortOption] = useState<'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar'>(() => {
+    // Initialize from localStorage, default to alphabetical if not found
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sortPreference');
+      if (saved && ['alphabetical', 'changeFromTargetPercent', 'changeFromTargetDollar'].includes(saved)) {
+        return saved as 'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar';
+      }
+    }
+    return 'alphabetical';
+  });
+
+  // Save sort preference to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sortPreference', sortOption);
+    }
+  }, [sortOption]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -519,21 +535,24 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-4 mb-14">
           {/* Sort dropdown */}
           {filteredWatchlist.length > 0 && (
-            <div className="flex justify-end mb-4">
-              <div className="relative">
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value as 'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar')}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="alphabetical">Sort: Alphabetical</option>
-                  <option value="changeFromTargetPercent">Sort: Change from Target (%)</option>
-                  <option value="changeFromTargetDollar">Sort: Change from Target ($)</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+            <div className="flex justify-start mb-4">
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">Sort:</label>
+                <div className="relative">
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value as 'alphabetical' | 'changeFromTargetPercent' | 'changeFromTargetDollar')}
+                    className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="alphabetical">Alphabetical</option>
+                    <option value="changeFromTargetPercent">Change from Target (%)</option>
+                    <option value="changeFromTargetDollar">Change from Target ($)</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
