@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Work_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import Navbar from "@/components/Navbar";
+import { WatchlistProvider } from "@/contexts/WatchlistContext";
+import ClientNavbar from "@/components/ClientNavbar";
 import ClientLayout from "@/components/ClientLayout";
 
 const workSans = Work_Sans({ subsets: ["latin"] });
@@ -68,12 +69,14 @@ export default function RootLayout({
       </head>
       <body className={workSans.className}>
         <Providers>
-          <Navbar />
-          <ClientLayout>
-            <main>
-              {children}
-            </main>
-          </ClientLayout>
+          <WatchlistProvider>
+            <ClientNavbar />
+            <ClientLayout>
+              <main>
+                {children}
+              </main>
+            </ClientLayout>
+          </WatchlistProvider>
         </Providers>
       </body>
     </html>

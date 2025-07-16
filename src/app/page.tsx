@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWatchlist } from '@/contexts/WatchlistContext';
 import StockCard from '@/components/StockCard';
 import { supabase } from '@/lib/supabase';
 import React from 'react';
@@ -39,6 +40,7 @@ interface WatchlistItem {
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
+  const { setWatchlistLength } = useWatchlist();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -55,32 +57,6 @@ export default function Home() {
     return 'alphabetical';
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest('.sort-dropdown-container')) {
-        setIsSortDropdownOpen(false);
-      }
-    };
-
-    if (isSortDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isSortDropdownOpen]);
-
-  // Save sort preference to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sortPreference', sortOption);
-    }
-  }, [sortOption]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -104,6 +80,25 @@ export default function Home() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
+
+  // Listen for search and sort events from navbar
+  useEffect(() => {
+    const handleSearchQueryChange = (event: CustomEvent) => {
+      setSearchQuery(event.detail);
+    };
+
+    const handleSortOptionChange = (event: CustomEvent) => {
+      setSortOption(event.detail);
+    };
+
+    window.addEventListener('searchQueryChange', handleSearchQueryChange as EventListener);
+    window.addEventListener('sortOptionChange', handleSortOptionChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('searchQueryChange', handleSearchQueryChange as EventListener);
+      window.removeEventListener('sortOptionChange', handleSortOptionChange as EventListener);
+    };
+  }, []);
 
 
 
@@ -209,6 +204,11 @@ export default function Home() {
       window.dispatchEvent(new CustomEvent('updateExistingStocks', { detail: [] }));
     }
   }, [watchlist]);
+
+  // Update watchlist length in context
+  useEffect(() => {
+    setWatchlistLength(watchlist.length);
+  }, [watchlist.length, setWatchlistLength]);
 
   // Filter watchlist based on search query
   const filteredWatchlist = React.useMemo(() => {
@@ -554,7 +554,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
+    <main className="min-h-screen bg-white text-gray-900" style={{ paddingTop: '50px' }}>
       <div className="pwa-main-fix max-w-7xl mx-auto px-4">
         {watchlistLoading && (
           <div className="text-center py-8">
@@ -564,87 +564,6 @@ export default function Home() {
         )}
 
         <div className="grid grid-cols-1 gap-4 mb-14">
-          {/* Sort and Search controls */}
-          {watchlist.length > 0 && (
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 min-w-0">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter by symbol..."
-                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-base font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
-                    style={{ fontSize: '16px' }}
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Sort dropdown */}
-              <div className="relative sort-dropdown-container flex-shrink-0">
-                <button
-                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                  className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                  title="Sort options"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                  </svg>
-                  <span className="hidden sm:inline">Sort</span>
-                </button>
-                
-                {isSortDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-48 bg-[#181A20] border border-gray-700 rounded-lg shadow-lg z-10">
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setSortOption('alphabetical');
-                          setIsSortDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
-                          sortOption === 'alphabetical' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
-                        }`}
-                      >
-                        Alphabetical
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSortOption('changeFromTargetPercent');
-                          setIsSortDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
-                          sortOption === 'changeFromTargetPercent' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
-                        }`}
-                      >
-                        Change from Target (%)
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSortOption('changeFromTargetDollar');
-                          setIsSortDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1E2026] ${
-                          sortOption === 'changeFromTargetDollar' ? 'bg-[#1E2026] text-white' : 'text-gray-300'
-                        }`}
-                      >
-                        Change from Target ($)
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {!watchlistLoading && filteredWatchlist.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center text-black">
