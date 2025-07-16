@@ -646,7 +646,7 @@ export default function Home() {
             </div>
           )}
 
-          {filteredWatchlist.length === 0 && (
+          {!watchlistLoading && filteredWatchlist.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center text-black">
               {searchQuery.trim() ? (
                 // No search results
